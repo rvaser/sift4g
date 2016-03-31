@@ -1,0 +1,10 @@
+SIFT 4G is dually licensed.
+
+The GNU GPL license applies to code and executables found in:
+  /sift4g
+  /vendor/swsharp.
+
+Fred Hutchinson Cancer Research Center license applies to code and executables found in:
+  /vendor/sift.
+
+The terms of this licenses can be found in each of the mentioned folders.

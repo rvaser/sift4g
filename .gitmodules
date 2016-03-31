@@ -1,0 +1,3 @@
+[submodule "vendor/swsharp"]
+	path = vendor/swsharp
+	url = git://git.code.sf.net/p/swsharp/code
