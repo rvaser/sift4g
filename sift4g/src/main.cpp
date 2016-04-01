@@ -4,14 +4,17 @@
 #include <string.h>
 #include <assert.h>
 
-#include "hash.hpp"
+#include "database_search.hpp"
 
 #include "swsharp/swsharp.h"
 
 static struct option options[] = {
     {"query", required_argument, 0, 'i'},
     {"target", required_argument, 0, 'j'},
+    {"target-chunk", required_argument, 0, 'T'},
     {"kmer-length", required_argument, 0, 'k'},
+    {"max-candidates", required_argument, 0, 'c'},
+    {"threads", required_argument, 0, 't'},
     {"help", no_argument, 0, 'h'},
     {0, 0, 0, 0}
 };
@@ -22,12 +25,16 @@ int main(int argc, char* argv[]) {
 
     std::string query_path;
     std::string database_path;
+    uint32_t database_chunk = 2000000000; /* ~2 GB */
 
-    int kmer_length = 5;
+    uint32_t kmer_length = 5;
+    uint32_t max_candidates = 5000;
+
+    uint32_t num_threads = 8;
 
     while (1) {
 
-        char argument = getopt_long(argc, argv, "i:j:k:h", options, NULL);
+        char argument = getopt_long(argc, argv, "i:j:h", options, NULL);
 
         if (argument == -1) {
             break;
@@ -43,6 +50,15 @@ int main(int argc, char* argv[]) {
         case 'k':
             kmer_length = atoi(optarg);
             break;
+        case 't':
+            num_threads = atoi(optarg);
+            break;
+        case 'c':
+            max_candidates = atoi(optarg);
+            break;
+        case 'T':
+            database_chunk = atof(optarg) * 1000000000;
+            break;
         case 'h':
         default:
             help();
@@ -55,13 +71,13 @@ int main(int argc, char* argv[]) {
 
     assert(kmer_length > 2 && kmer_length < 6 && "kmer_length possible values = 3,4,5");
 
-    Chain** queries = nullptr;
-    int queries_length = 0;
-    readFastaChains(&queries, &queries_length, query_path.c_str());
+    threadPoolInitialize(num_threads);
 
-    auto hash = createHash(queries, queries_length, 0, queries_length, kmer_length);
+    std::vector<std::vector<uint32_t>> indices;
+    uint64_t cells = searchDatabase(indices, database_path, database_chunk,
+        query_path, kmer_length, max_candidates, num_threads);
 
-    deleteFastaChains(queries, queries_length);
+    threadPoolTerminate();
 
     return 0;
 }
@@ -77,10 +93,19 @@ static void help() {
     "    -j, --target <file>\n"
     "        (required)\n"
     "        input fasta database target file\n"
+    "    --target-chunck <float>\n"
+    "        default: 2\n"
+    "        maximal size of target database (in GB!) which is stored into RAM at a time\n"
     "    --kmer-length <int>\n"
     "        default: 5\n"
     "        length of kmers used for database search\n"
     "        possible values: 3, 4, 5\n"
+    "    --max-candidates <int>\n"
+    "        default: 5000\n"
+    "        number of database sequences passed on to the Smith-Waterman part\n"
+    "    --threads <int>\n"
+    "        default: 8\n"
+    "        number of threads used in thread pool\n"
     "    -h, -help\n"
     "        prints out the help\n");
 }

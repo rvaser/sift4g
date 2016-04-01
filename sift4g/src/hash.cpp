@@ -18,12 +18,13 @@ std::vector<uint32_t> kNumDiffKmers = { 0, 0, 0, 26427, 845627, 27060027 };
 
 void createKmerVector(std::vector<uint32_t>& dst, Chain* chain, uint32_t kmer_length) {
 
+    dst.clear();
+
     uint32_t chain_length = chainGetLength(chain);
     if (chain_length < kmer_length) {
         return;
     }
 
-    dst.clear();
     auto codes = chainGetCodes(chain);
 
     uint32_t kmer = 0;
@@ -32,6 +33,7 @@ void createKmerVector(std::vector<uint32_t>& dst, Chain* chain, uint32_t kmer_le
     for (uint32_t i = 0; i < kmer_length; ++i) {
         kmer = (kmer << kProtBitLength) | codes[i];
     }
+    dst.emplace_back(kmer);
 
     for (uint32_t i = kmer_length; i < chain_length; ++i) {
         kmer = ((kmer << kProtBitLength) | codes[i]) & del_mask;
