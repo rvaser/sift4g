@@ -11,13 +11,11 @@
 #include "hash.hpp"
 #include "database_search.hpp"
 
-#include "swsharp/swsharp.h"
-
 constexpr uint32_t database_chunk = 100000000; /* ~100MB */
 constexpr float log_step_percentage = 2.5;
 
 void database_search_log(uint32_t part, float part_size, float percentage) {
-    fprintf(stderr, "* processing part %u with size of ~%.2f GB: %.2f/100.00%% *\r",
+    fprintf(stderr, "* processing database part %u (size ~%.2f GB): %.2f/100.00%% *\r",
         part, part_size, percentage);
     fflush(stderr);
 }
@@ -69,14 +67,10 @@ void* threadSearchDatabase(void* params);
 int32_t longestIncreasingSubsequence(const std::vector<int32_t>& src);
 
 uint64_t searchDatabase(std::vector<std::vector<uint32_t>>& dst,
-    const std::string& database_path, const std::string& query_path,
+    const std::string& database_path, Chain** queries, int32_t queries_length,
     uint32_t kmer_length, uint32_t max_candidates, uint32_t num_threads) {
 
     fprintf(stderr, "** Searching database for candidate sequences **\n");
-
-    Chain** queries = nullptr;
-    int queries_length = 0;
-    readFastaChains(&queries, &queries_length, query_path.c_str());
 
     std::shared_ptr<Hash> query_hash = createHash(queries, queries_length, 0,
         queries_length, kmer_length);
@@ -183,8 +177,6 @@ uint64_t searchDatabase(std::vector<std::vector<uint32_t>>& dst,
         std::vector<Candidate>().swap(candidates[0][i]);
         std::sort(dst[i].begin(), dst[i].end());
     }
-
-    deleteFastaChains(queries, queries_length);
 
     return database_cells;
 }

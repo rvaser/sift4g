@@ -13,7 +13,7 @@ L_CMD = $(addprefix -L, $(VND_DIR)/swsharp/lib)
 
 DEP_LIBS = $(VND_DIR)/swsharp/lib/libswsharp.a
 
-CP_FLAGS = $(I_CMD) -std=c++11 -O3 -Wall
+CP_FLAGS = $(I_CMD) -std=c++11 -O3 -Wall -Wno-write-strings
 LD_FLAGS = $(I_CMD) $(L_CMD) -lswsharp -lpthread -lm
 
 SRC = $(shell find $(SRC_DIR) -type f -regex ".*\.cpp")
