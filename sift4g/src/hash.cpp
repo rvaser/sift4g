@@ -77,7 +77,7 @@ Hash::Hash(Chain** chains, uint32_t chains_length, uint32_t start, uint32_t leng
         createKmerVector(chain_kmers, chains[i], kmer_length);
 
         for (uint32_t j = 0; j < chain_kmers.size(); ++j) {
-            hits_[tmp[chain_kmers[j]]++] = i - start;
+            hits_[tmp[chain_kmers[j]]++] = Hit(i - start, j);
         }
     }
 }

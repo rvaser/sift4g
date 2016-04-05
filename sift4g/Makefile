@@ -19,8 +19,7 @@ LD_FLAGS = $(I_CMD) $(L_CMD) -lswsharp -lpthread -lm
 SRC = $(shell find $(SRC_DIR) -type f -regex ".*\.cpp")
 OBJ = $(subst $(SRC_DIR), $(OBJ_DIR), $(addsuffix .o, $(basename $(SRC))))
 DEP = $(OBJ:.o=.d)
-EXC = $(NAME)
-BIN = $(EXC_DIR)/$(EXC)
+BIN = $(EXC_DIR)/$(NAME)
 
 cpu: LD = $(CP)
 
@@ -29,9 +28,9 @@ cpu: all
 
 clean:
 	@echo [RM] cleaning
-	@rm $(OBJ_DIR) $(BIN) $(EXC) -rf
+	@rm $(EXC_DIR) $(OBJ_DIR) -rf
 
-$(EXC): $(OBJ) $(DEP_LIBS)
+$(BIN): $(OBJ) $(DEP_LIBS)
 	@echo [LD] $@
 	@mkdir -p $(dir $@)
 	@$(LD) $(OBJ) -o $@ $(LD_FLAGS)
@@ -40,10 +39,5 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo [CP] $<
 	@mkdir -p $(dir $@)
 	@$(CP) $< -c -o $@ -MMD $(CP_FLAGS)
-
-$(BIN): $(EXC)
-	@echo [CP] $@
-	@mkdir -p $(dir $@)
-	@cp $< $@
 
 -include $(DEP)

@@ -11,7 +11,6 @@
 static struct option options[] = {
     {"query", required_argument, 0, 'i'},
     {"target", required_argument, 0, 'j'},
-    {"target-chunk", required_argument, 0, 'T'},
     {"kmer-length", required_argument, 0, 'k'},
     {"max-candidates", required_argument, 0, 'c'},
     {"threads", required_argument, 0, 't'},
@@ -25,7 +24,6 @@ int main(int argc, char* argv[]) {
 
     std::string query_path;
     std::string database_path;
-    uint32_t database_chunk = 2000000000; /* ~2 GB */
 
     uint32_t kmer_length = 5;
     uint32_t max_candidates = 5000;
@@ -56,9 +54,6 @@ int main(int argc, char* argv[]) {
         case 'c':
             max_candidates = atoi(optarg);
             break;
-        case 'T':
-            database_chunk = atof(optarg) * 1000000000;
-            break;
         case 'h':
         default:
             help();
@@ -74,8 +69,8 @@ int main(int argc, char* argv[]) {
     threadPoolInitialize(num_threads);
 
     std::vector<std::vector<uint32_t>> indices;
-    uint64_t cells = searchDatabase(indices, database_path, database_chunk,
-        query_path, kmer_length, max_candidates, num_threads);
+    uint64_t cells = searchDatabase(indices, database_path, query_path, kmer_length,
+        max_candidates, num_threads);
 
     threadPoolTerminate();
 
@@ -93,9 +88,6 @@ static void help() {
     "    -j, --target <file>\n"
     "        (required)\n"
     "        input fasta database target file\n"
-    "    --target-chunck <float>\n"
-    "        default: 2\n"
-    "        maximal size of target database (in GB!) which is stored into RAM at a time\n"
     "    --kmer-length <int>\n"
     "        default: 5\n"
     "        length of kmers used for database search\n"
