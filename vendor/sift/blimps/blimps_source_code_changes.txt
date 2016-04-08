@@ -1,0 +1,21 @@
+/*!
+ * @file blimps_source_coude_changes.txt
+ * @brief contains changes done to BLIMPS source code
+ *
+ * @author rvaser (robert.vaser@gmail.com)
+ * @date Apr 07, 2016
+ */
+
+The BLIMPS source code was taken from JCVI version 1.0.3 (or 1.03?). The changes are given bellow in a CSV format.
+
+File, Description
+blocks.h, changed include guards <> to "" for files in the project
+blocksprogs.h, *same as above*
+global.h, *same as above*
+matrix.h, *same as above*
+residues.h, *same as above*
+sequences.h, *same as above*
+pattern.c, commented line 48 (static void print_residue()) because function is never used
+version.c, added "%s\" to fprintfs on lines 183 and 184
+Makefile.am, removed
+Makefile.im, removed

@@ -96,10 +96,10 @@ uint64_t searchDatabase(std::vector<std::vector<uint32_t>>& dst,
 
         int status = 1;
 
+        database_search_log(part, part_size, 0);
+
         status &= readFastaChainsPart(&database, &database_length, handle,
             serialized, database_chunk);
-
-        database_search_log(part, part_size, 0);
 
         uint32_t database_split_size = (database_length - database_start) / num_threads;
         std::vector<uint32_t> database_splits(num_threads + 1, database_start);
@@ -199,7 +199,7 @@ void* threadSearchDatabase(void* params) {
 
         if (thread_data->log && log_percentage < 100.0) {
             ++log_counter;
-            if (log_size == 0 || log_counter % log_size == 0) {
+            if (log_size != 0 && log_counter % log_size == 0) {
                 database_search_log(thread_data->part, thread_data->part_size, log_percentage);
                 log_percentage += log_step_percentage;
             }
