@@ -58,8 +58,6 @@ void selectAlignments(std::vector<std::vector<Chain*>>& dst, DbAlignment*** alig
 void outputSelectedAlignments(std::vector<std::vector<Chain*>>& alignment_strings,
     Chain** queries, int32_t queries_length, const std::string& out_path) {
 
-    printf("%s\n", out_path.c_str());
-
     for (uint32_t i = 0; i < alignment_strings.size(); ++i) {
 
         std::ofstream out_file;

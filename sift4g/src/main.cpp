@@ -197,6 +197,9 @@ int main(int argc, char* argv[]) {
         database_path, queries, queries_length, indices, algorithm, evalue_params,
         max_evalue, max_alignments, scorer, cards, cards_length);
 
+    deleteEValueParams(evalue_params);
+    scorerDelete(scorer);
+
     if (sub_results) {
         char* alignments_path = new char[1024];
         if (!out_path.empty()) {
@@ -214,22 +217,17 @@ int main(int argc, char* argv[]) {
     std::vector<std::vector<Chain*>> alignment_strings;
     selectAlignments(alignment_strings, alignments, alignments_lenghts, queries, queries_length, median_threshold);
 
+    deleteShotgunDatabase(alignments, alignments_lenghts, queries_length);
+    deleteFastaChains(database, database_length);
+
     if (sub_results) {
         outputSelectedAlignments(alignment_strings, queries, queries_length, out_path);
     }
 
-    deleteShotgunDatabase(alignments, alignments_lenghts, queries_length);
+    // SIFT PREDICTIONS
 
     deleteSelectedAlignments(alignment_strings);
-
-    deleteFastaChains(database, database_length);
-
-    deleteEValueParams(evalue_params);
-    scorerDelete(scorer);
-
     deleteFastaChains(queries, queries_length);
-
-    // SIFT PREDICTIONS
 
     threadPoolTerminate();
 
@@ -341,8 +339,6 @@ static void help() {
     "    --median-threshold <float>\n"
     "        default: 2.75\n"
     "        represents alignment diversity, used to output only a set of alignments\n"
-    "    --cpu\n"
-    "        only cpu is used\n"
     "    --threads <int>\n"
     "        default: 8\n"
     "        number of threads used in thread pool\n"
