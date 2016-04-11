@@ -3,3 +3,9 @@ obj/
 
 # Executables
 bin/
+
+# Include Header files
+include/
+
+# Library files
+lib/

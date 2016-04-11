@@ -4,8 +4,12 @@
 #include <string.h>
 #include <assert.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include "database_search.hpp"
 #include "database_alignment.hpp"
+#include "select_alignments.hpp"
 
 #include "swsharp/evalue.h"
 #include "swsharp/swsharp.h"
@@ -21,16 +25,17 @@ static struct option options[] = {
     {"target", required_argument, 0, 'j'},
     {"kmer-length", required_argument, 0, 'k'},
     {"max-candidates", required_argument, 0, 'C'},
+    {"median-threshold", required_argument, 0, 'T'},
     {"cards", required_argument, 0, 'c'},
     {"gap-extend", required_argument, 0, 'e'},
     {"gap-open", required_argument, 0, 'g'},
     {"matrix", required_argument, 0, 'm'},
     {"out", required_argument, 0, 'o'},
+    {"sub-results", no_argument, 0, 's'},
     {"outfmt", required_argument, 0, 'f'},
     {"evalue", required_argument, 0, 'E'},
     {"max-aligns", required_argument, 0, 'M'},
     {"algorithm", required_argument, 0, 'A'},
-    {"cpu", no_argument, 0, 'P'},
     {"threads", required_argument, 0, 't'},
     {"help", no_argument, 0, 'h'},
     {0, 0, 0, 0}
@@ -70,14 +75,16 @@ int main(int argc, char* argv[]) {
     uint32_t max_alignments = 400;
     double max_evalue = 0.0001;
 
-    bool force_cpu = true;
     int32_t* cards = nullptr;
     int32_t cards_length = 0;
 
-    char* out_path = nullptr;
+    std::string out_path = "";
+    bool sub_results = false;
     int32_t out_format = SW_OUT_DB_BLASTM9;
 
     int32_t algorithm = SW_ALIGN;
+
+    float median_threshold = 2.75;
 
     uint32_t num_threads = 8;
 
@@ -102,6 +109,9 @@ int main(int argc, char* argv[]) {
         case 'C':
             max_candidates = atoi(optarg);
             break;
+        case 'T':
+            median_threshold = atof(optarg);
+            break;
         case 'g':
             gap_open = atoi(optarg);
             break;
@@ -113,6 +123,9 @@ int main(int argc, char* argv[]) {
             break;
         case 'o':
             out_path = optarg;
+            break;
+        case 's':
+            sub_results = true;
             break;
         case 'f':
             out_format = getOutFormat(optarg);
@@ -128,9 +141,6 @@ int main(int argc, char* argv[]) {
             break;
         case 'A':
             algorithm = getAlgorithm(optarg);
-            break;
-        case 'P':
-            force_cpu = true;
             break;
         case 't':
             num_threads = atoi(optarg);
@@ -151,15 +161,16 @@ int main(int argc, char* argv[]) {
     assert(max_evalue > 0 && "invalid evalue");
     assert(num_threads > 0 && "invalid thread number");
 
-    if (force_cpu) {
-        cards = nullptr;
-        cards_length = 0;
-    } else {
-        if (cards_length == -1) {
-            cudaGetCards(&cards, &cards_length);
-        }
-        assert(cudaCheckCards(cards, cards_length) && "invalid cuda cards");
+    struct stat info;
+    if (!out_path.empty()) {
+        stat(out_path.c_str(), &info);
+        assert((info.st_mode & S_IFDIR) && "invalid out directory");
     }
+
+    if (cards_length == -1) {
+        cudaGetCards(&cards, &cards_length);
+    }
+    assert(cudaCheckCards(cards, cards_length) && "invalid cuda cards");
 
     threadPoolInitialize(num_threads);
 
@@ -184,11 +195,32 @@ int main(int argc, char* argv[]) {
 
     alignDatabase(&alignments, &alignments_lenghts, &database, &database_length,
         database_path, queries, queries_length, indices, algorithm, evalue_params,
-        max_evalue, max_alignments, scorer, cards, cards_length, out_path, out_format);
+        max_evalue, max_alignments, scorer, cards, cards_length);
 
-    outputShotgunDatabase(alignments, alignments_lenghts, queries_length, out_path, out_format);
+    if (sub_results) {
+        char* alignments_path = new char[1024];
+        if (!out_path.empty()) {
+            strcpy(alignments_path, out_path.c_str());
+            strcat(alignments_path, "/");
+            strcat(alignments_path, "alignments.txt");
+        } else {
+            strcpy(alignments_path, "alignments.txt");
+        }
+
+        outputShotgunDatabase(alignments, alignments_lenghts, queries_length, alignments_path, out_format);
+        delete[] alignments_path;
+    }
+
+    std::vector<std::vector<Chain*>> alignment_strings;
+    selectAlignments(alignment_strings, alignments, alignments_lenghts, queries, queries_length, median_threshold);
+
+    if (sub_results) {
+        outputSelectedAlignments(alignment_strings, queries, queries_length, out_path);
+    }
 
     deleteShotgunDatabase(alignments, alignments_lenghts, queries_length);
+
+    deleteSelectedAlignments(alignment_strings);
 
     deleteFastaChains(database, database_length);
 
@@ -196,6 +228,8 @@ int main(int argc, char* argv[]) {
     scorerDelete(scorer);
 
     deleteFastaChains(queries, queries_length);
+
+    // SIFT PREDICTIONS
 
     threadPoolTerminate();
 
@@ -247,6 +281,56 @@ static void help() {
     "    -j, --target <file>\n"
     "        (required)\n"
     "        input fasta database target file\n"
+    "    -g, --gap-open <int>\n"
+    "        default: 10\n"
+    "        gap opening penalty, must be given as a positive integer \n"
+    "    -e, --gap-extend <int>\n"
+    "        default: 1\n"
+    "        gap extension penalty, must be given as a positive integer and\n"
+    "        must be less or equal to gap opening penalty\n"
+    "    --matrix <string>\n"
+    "        default: BLOSUM_62\n"
+    "        similarity matrix, can be one of the following:\n"
+    "            BLOSUM_45\n"
+    "            BLOSUM_50\n"
+    "            BLOSUM_62\n"
+    "            BLOSUM_80\n"
+    "            BLOSUM_90\n"
+    "            BLOSUM_30\n"
+    "            BLOSUM_70\n"
+    "            BLOSUM_250\n"
+    "    --evalue <float>\n"
+    "        default: 0.0001\n"
+    "        evalue threshold, alignments with higher evalue are filtered,\n"
+    "        must be given as a positive float\n"
+    "    --max-aligns <int>\n"
+    "        default: 400\n"
+    "        maximum number of alignments to be outputted\n"
+    "    --algorithm <string>\n"
+    "        default: SW\n"
+    "        algorithm used for alignment, must be one of the following: \n"
+    "            SW - Smith-Waterman local alignment\n"
+    "            NW - Needleman-Wunsch global alignment\n"
+    "            HW - semiglobal alignment\n"
+    "            OV - overlap alignment\n"
+    "    --cards <ints>\n"
+    "        default: all available CUDA cards\n"
+    "        list of cards should be given as an array of card indexes delimited with\n"
+    "        nothing, for example usage of first two cards is given as --cards 01\n"
+    "    --out <string>\n"
+    "        default: current directory\n"
+    "        output directory for SIFT predictions\n"
+    "    --sub-results\n"
+    "        prints sub results (alignment file and a file per query containing\n"
+    "        its selected alignments forp rediction) to same directory defined\n"
+    "        with --out\n"
+    "    --outfmt <string>\n"
+    "        default: bm9\n"
+    "        out format for the alignment file, must be one of the following:\n"
+    "            bm0      - blast m0 output format\n"
+    "            bm8      - blast m8 tabular output format\n"
+    "            bm9      - blast m9 commented tabular output format\n"
+    "            light    - score-name tabbed output\n"
     "    --kmer-length <int>\n"
     "        default: 5\n"
     "        length of kmers used for database search\n"
@@ -254,6 +338,11 @@ static void help() {
     "    --max-candidates <int>\n"
     "        default: 5000\n"
     "        number of database sequences passed on to the Smith-Waterman part\n"
+    "    --median-threshold <float>\n"
+    "        default: 2.75\n"
+    "        represents alignment diversity, used to output only a set of alignments\n"
+    "    --cpu\n"
+    "        only cpu is used\n"
     "    --threads <int>\n"
     "        default: 8\n"
     "        number of threads used in thread pool\n"

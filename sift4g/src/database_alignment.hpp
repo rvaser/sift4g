@@ -18,5 +18,4 @@ void alignDatabase(DbAlignment**** alignments, int** alignments_lengths, Chain**
     int32_t queries_length, std::vector<std::vector<uint32_t>>& indices,
     int32_t algorithm, EValueParams* evalue_params, double max_evalue,
     uint32_t max_alignments, Scorer* scorer, int32_t* cards,
-    int32_t cards_length, const std::string& out_path,
-    int32_t out_format);
+    int32_t cards_length);

@@ -96,10 +96,10 @@ uint64_t searchDatabase(std::vector<std::vector<uint32_t>>& dst,
 
         int status = 1;
 
-        database_search_log(part, part_size, 0);
-
         status &= readFastaChainsPart(&database, &database_length, handle,
             serialized, database_chunk);
+
+        database_search_log(part, part_size, 0);
 
         uint32_t database_split_size = (database_length - database_start) / num_threads;
         std::vector<uint32_t> database_splits(num_threads + 1, database_start);
@@ -144,16 +144,17 @@ uint64_t searchDatabase(std::vector<std::vector<uint32_t>>& dst,
 
             if (num_threads > 1) {
                 std::sort(candidates[0][i].begin(), candidates[0][i].end());
-                std::vector<Candidate> tmp(candidates[0][i].begin(),
-                    candidates[0][i].begin() + max_candidates);
-                candidates[0][i].swap(tmp);
+                if (candidates[0][i].size() > max_candidates) {
+                    std::vector<Candidate> tmp(candidates[0][i].begin(),
+                        candidates[0][i].begin() + max_candidates);
+                    candidates[0][i].swap(tmp);
+                }
             }
 
             min_scores[i] = candidates[0][i].back().score;
         }
 
         database_search_log(part, part_size, 100);
-        fprintf(stderr, "\n");
         ++part;
 
         if (status == 0) {
@@ -162,6 +163,7 @@ uint64_t searchDatabase(std::vector<std::vector<uint32_t>>& dst,
 
         database_start = database_length;
     }
+    fprintf(stderr, "\n\n");
 
     fclose(handle);
     deleteFastaChains(database, database_length);

@@ -12,7 +12,7 @@ constexpr uint32_t database_chunk = 1000000000; /* ~1GB */
 constexpr float log_step_percentage = 2.5;
 
 void database_alignment_log(uint32_t part, float part_size, float percentage) {
-    fprintf(stderr, "* aligning database part %u (size ~%.2f GB): %.2f/100.00%% *\r",
+    fprintf(stderr, "* processing database part %u (size ~%.2f GB): %.2f/100.00%% *\r",
         part, part_size, percentage);
     fflush(stderr);
 }
@@ -28,8 +28,7 @@ void alignDatabase(DbAlignment**** alignments, int** alignments_lengths, Chain**
     int32_t queries_length, std::vector<std::vector<uint32_t>>& indices,
     int32_t algorithm, EValueParams* evalue_params, double max_evalue,
     uint32_t max_alignments, Scorer* scorer, int32_t* cards,
-    int32_t cards_length, const std::string& out_path,
-    int32_t out_format) {
+    int32_t cards_length) {
 
     fprintf(stderr, "** Aligning queries with candidate sequences **\n");
 
@@ -53,10 +52,10 @@ void alignDatabase(DbAlignment**** alignments, int** alignments_lengths, Chain**
         status &= readFastaChainsPart(&database, &database_length, handle,
             serialized, database_chunk);
 
+        database_alignment_log(part, part_size, 0);
+
         uint32_t log_counter = 0;
         float log_percentage = log_step_percentage;
-
-        database_alignment_log(part, part_size, 0);
 
         /* have to malloc... */
         DbAlignment*** alignments_part = (DbAlignment***) malloc(queries_length * sizeof(DbAlignment**));
@@ -67,7 +66,7 @@ void alignDatabase(DbAlignment**** alignments, int** alignments_lengths, Chain**
         for (int32_t i = 0; i < queries_length; ++i) {
 
             ++log_counter;
-            if (log_counter % log_size == 0 && log_percentage < 100.) {
+            if (log_size != 0 && log_counter % log_size == 0 && log_percentage < 100.) {
                 database_alignment_log(part, part_size, log_percentage);
                 log_percentage += log_step_percentage;
             }
@@ -117,7 +116,6 @@ void alignDatabase(DbAlignment**** alignments, int** alignments_lengths, Chain**
         }
 
         database_alignment_log(part, part_size, 100);
-        fprintf(stderr, "\n");
         ++part;
 
         if (status == 0) {
@@ -126,6 +124,7 @@ void alignDatabase(DbAlignment**** alignments, int** alignments_lengths, Chain**
 
         database_start = database_length;
     }
+    fprintf(stderr, "\n\n");
 
     fclose(handle);
     *_database = database;
