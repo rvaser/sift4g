@@ -26,6 +26,7 @@ INC = $(subst $(SRC_DIR), $(INC_DIR)/$(NAME), $(API))
 LIB = $(LIB_DIR)/lib$(NAME).a
 
 all: lib include
+install: all
 
 include: $(INC)
 

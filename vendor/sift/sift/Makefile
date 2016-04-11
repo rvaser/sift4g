@@ -6,9 +6,8 @@ NAME =  sift
 OBJ_DIR = obj
 SRC_DIR = src
 DOC_DIR = doc
-INC_DIR = ../include/$(NAME)
+INC_DIR = ../include
 LIB_DIR = ../lib
-EXC_DIR = ../bin
 
 BLIMPS_DIR = ../blimps
 
@@ -20,23 +19,23 @@ DEP_LIBS = $(BLIMPS_DIR)/lib/libblimps.a
 CC_FLAGS = $(I_CMD) -O2 -w
 LD_FLAGS = $(I_CMD) $(L_CMD) -lblimps -lm
 
-#API = $(addprefix $(SRC_DIR)/, )
+API = $(addprefix $(SRC_DIR)/, info_on_seqs_pid.h)
 
 SRC = $(shell find $(SRC_DIR) -type f -regex ".*\.c")
 OBJ = $(subst $(SRC_DIR), $(OBJ_DIR), $(addsuffix .o, $(basename $(SRC))))
 DEP = $(OBJ:.o=.d)
-INC = $(subst $(SRC_DIR), $(INC_DIR), $(API))
+INC = $(subst $(SRC_DIR), $(INC_DIR)/$(NAME), $(API))
 LIB = $(LIB_DIR)/lib$(NAME).a
 EXC = $(NAME)
-BIN = $(EXC_DIR)/$(EXC)
 
+all: CC_FLAGS := $(CC_FLAGS) -DSIFT_MAIN_
 all: $(EXC)
 
-#install: lib include
+install: lib include
 
-#include: $(INC)
+include: $(INC)
 
-#lib: $(LIB)
+lib: $(LIB)
 
 $(EXC): $(OBJ) $(DEP_LIBS)
 	@echo [LD] $@
@@ -48,7 +47,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	@$(CC) $< -c -o $@ -MMD $(CC_FLAGS)
 
-$(INC_DIR)/%.h: $(SRC_DIR)/%.h
+$(INC_DIR)/$(NAME)/%.h: $(SRC_DIR)/%.h
 	@echo [CP] $@
 	@mkdir -p $(dir $@)
 	@cp $< $@
@@ -58,13 +57,8 @@ $(LIB): $(OBJ)
 	@mkdir -p $(dir $@)
 	@ar rcs $(LIB) $(OBJ)
 
-$(BIN): $(EXC)
-	@echo [CP] $@
-	@mkdir -p $(dir $@)
-	@cp $< $@
-
 clean:
 	@echo [RM] cleaning
-	@rm $(OBJ_DIR) $(EXC) -rf
+	@rm $(OBJ_DIR) $(EXC) $(LIB_DIR) $(INC_DIR) -rf
 
 -include $(DEP)

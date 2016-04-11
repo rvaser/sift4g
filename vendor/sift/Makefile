@@ -1,8 +1,8 @@
 CORE = sift
 DEPS = blimps
 
-all: TARGETS=all
-cpu: TARGETS=all
+all: TARGETS=install
+cpu: TARGETS=install
 clean: TARGETS=clean
 
 all: $(CORE) $(DEPS)
