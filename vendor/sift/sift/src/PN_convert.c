@@ -703,8 +703,9 @@ psiblast_alts (Block* block, Matrix* matrix, double* freqs, struct float_qij* qi
   } /* end of for pos */
 
  free(col);
-  free (pssm->value); free(pssm->sum);
-  free(pssm);
+ free(pssm->value[0]);
+ free(pssm->value); free(pssm->sum);
+ free(pssm);
 
 }
 
@@ -1092,7 +1093,8 @@ static void SIFT_alts(Block* block, Matrix* matrix, double* freqs,
   }
 
   free(col);
-  free (pssm->value); free(pssm->sum);
+  free(pssm->value[0]);
+  free(pssm->value); free(pssm->sum);
   free(pssm);
 
 }  /* end of PN_make_alts */
@@ -1230,7 +1232,8 @@ void SIFT_alts_test(Block* block, Matrix* matrix, double* freqs,
   }
   init_frq_qij(); /* return back to normal */
   free(col);
-  free (pssm->value); free(pssm->sum);
+  free(pssm->value[0]);
+  free(pssm->value); free(pssm->sum);
   free(pssm);
 
 }  /* end of SIFT_alts_test */
@@ -2376,12 +2379,12 @@ calculate_basic_aa_stored (Block* block)
 void
 free_struct_work_pssm (struct work_pssm* pssm)
 {
-	free (pssm->value[0]); /* holy cow, Ithink this works. This points
+	free(pssm->value[0]); /* holy cow, Ithink this works. This points
                                to space allocated in double pointer*/
-	free (pssm->value); /* this points to an array of block length .
+	free(pssm->value); /* this points to an array of block length .
 		  each cell points to values allocated by double pointer*/
-	free (pssm->sum);
-	free (pssm);
+	free(pssm->sum);
+	free(pssm);
 	pssm = NULL;
 
 }

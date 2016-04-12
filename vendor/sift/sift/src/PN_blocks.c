@@ -796,43 +796,40 @@ remove_seqs_percent_identical_to_query (Sequence* seqs[MAXSEQ], int* no_of_seqs,
 	printf (" were found to be over %d%% identical with your protein query: ", (int) percent_identical);
 
 	fprintf (stderr, "*** The following sequences have been removed because they ");
-        fprintf (stderr, " were found to be over %d%% identical with your protein query: ", (int) percent_identical);
+    fprintf (stderr, " were found to be over %d%% identical with your protein query: ", (int) percent_identical);
 
-        percentage_identity_with_seq0_seqs (seqs, nseqs);
-        for (i = 1; i < nseqs; i++)  {
-                if (seqs[i]->undefined >= percent_identical ) { /* >= identical, remove */
-                        entered = 1;
+    percentage_identity_with_seq0_seqs (seqs, nseqs);
+    for (i = 1; i < nseqs; i++)  {
+        if (seqs[i]->undefined >= percent_identical ) { /* >= identical, remove */
+            entered = 1;
 			printf (" %s,", seqs[i]->name);
 			fprintf (stderr, " %s,", seqs[i]->name);
 
-/* below was removed to reduce verbiage on webpage */
-/*			printf ("*** Sequence %s was found to be %d%% ",
-								seqs[i]->name,
-						seqs[i]->undefined);
-                        printf ("identical with the query sequence and was ");
-                        printf ("removed to reduce redundancy.***<BR>\n");
-                        fprintf (stderr, "*** Sequence %s was found to be ",
-						seqs[i]->name);
-                        fprintf (stderr,"%d%% identical with the query ",
-					seqs[i]->undefined);
-                        fprintf (stderr, "sequence and was removed to reduce ");
-                        fprintf (stderr, "redundancy.***<BR>\n");
-*/
+            /* below was removed to reduce verbiage on webpage */
+            /* printf ("*** Sequence %s was found to be %d%% ",
+                seqs[i]->name,
+                seqs[i]->undefined);
+            printf ("identical with the query sequence and was ");
+            printf ("removed to reduce redundancy.***<BR>\n");
+            fprintf (stderr, "*** Sequence %s was found to be ", seqs[i]->name);
+            fprintf (stderr,"%d%% identical with the query ", seqs[i]->undefined);
+            fprintf (stderr, "sequence and was removed to reduce ");
+            fprintf (stderr, "redundancy.***<BR>\n"); */
 
-                        free_sequence(seqs[i]);
-                        seqs[i] = seqs[nseqs-1];
+            free_sequence(seqs[i]);
+            seqs[i] = seqs[nseqs-1];
+            seqs[nseqs-1] = NULL;
 
-
-                       nseqs--;
-                	/* bug found by Chris Saunders 08/08/01
-                        **  culling loop mod:
-                        **    decriment the index so that the new seq now
-                        **  addressed as seqs[i] can be checked against
-                        **  against the percent_identical threshold
-                        */
+            nseqs--;
+            /* bug found by Chris Saunders 08/08/01
+            **  culling loop mod:
+            **    decriment the index so that the new seq now
+            **  addressed as seqs[i] can be checked against
+            **  against the percent_identical threshold
+            */
 			i--;
 		}
-        }
+    }
 	if (entered == 1) {
 		printf (".\n\n"); fprintf ( stderr, ".<BR><BR>\n");
 	} else {
@@ -843,7 +840,6 @@ remove_seqs_percent_identical_to_query (Sequence* seqs[MAXSEQ], int* no_of_seqs,
 /*		fprintf (stderr, "*** <B>%d</B> sequences were used to estimate probabilities.  ***<BR>\n", nseqs); */
 	}
 	*no_of_seqs = nseqs;
-
 }
 
 

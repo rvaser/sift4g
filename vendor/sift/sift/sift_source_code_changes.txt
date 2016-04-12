@@ -16,12 +16,12 @@ Array_math.h, new file (because inclusion of source files often means trouble)
 constants.h, new file containing structures from blimps/docs needed in PN_convert.c
 info_on_seqs_pid.c, replaced source code inclusion with header files, replaced gets with fgets
 info_on_seqs_pid.h, new file (contains functions defined in info_on_seqs_pid.c, needed for library creation)
-main.c, new file (extracted from info_on_seqs_pid.c)
+main.c, new file (extracted from info_on_seqs_pid.c, contains only getArgs function and calls function from info_on_seqs_pid.c)
 Matrix_Info.c, replaced source code inclusion with header files
 Matrix_Info.h, added #include "blimps/blocksprogs.h"
-PN_blocks.c, replaced source code inclusion with header files, added #include <assert.h>
+PN_blocks.c, replaced source code inclusion with header files, added #include <assert.h>; repalcedp pointers with NULL when removing sequences which identitiy is larger than some percentage to be able to free them properly
 PN_blocks.h, replaced source code inclusion with header files, added #include "blimps/blocksprogs.h" and #define MAXSEQ 400
-PN_convert.c, replaced source code inclusion with header files, added #include "constants.h", commented every occurrence of blimps_dir and now structures are initialized with values from constants.h, removed static keyword from stuff mentioned bellow
+PN_convert.c, replaced source code inclusion with header files, added #include "constants.h", commented every occurrence of blimps_dir and now structures are initialized with values from constants.h, removed static keyword from stuff mentioned bellow; Solver memory leak by adding free(pssm->values[0]) on several places
 PN_convert.h, added #include <stdio.h> , #include "blimps/blocksprogs.h", removed static from struct working *make_col() and void counts(), added int count_residues(col);
 Psiblast.c, replaced source code inclusion with header files
 Psiblast.h, added #include "blimps/blocksprogs.h"

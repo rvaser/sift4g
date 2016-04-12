@@ -31,7 +31,6 @@ int main (int argc, char* argv[])
 
 	ErrorLevelReport = 5;
 
-	init_frq_qij();
 	printf ("tell me i've entered\n");
 	getargs (argc, argv, &seqfp, &polymorphismfp, outfilename, &seq_identity);
 
@@ -63,11 +62,6 @@ int main (int argc, char* argv[])
         {
 			nseqs++;
         }
-        int h;
-        for (h = 0; h < seqs[0]->length; ++h) {
-            printf("%c", seqs[0]->sequence[h] + 'A');
-        }
-        printf("\n");
     }
     else /* CLUSTAL or MSF? */
     {
@@ -105,6 +99,13 @@ int main (int argc, char* argv[])
 	}
 
 	generate_predictions(seqs, nseqs, polymorphismfp, seq_identity, outfp);
+
+	for (i = 0; i < nseqs; ++i) {
+		if (seqs[i] != NULL) {
+			free(seqs[i]->sequence);
+			free(seqs[i]);
+		}
+	}
 
 	if (polymorphismfp != NULL) close(polymorphismfp);
 	fclose(seqfp);

@@ -38,6 +38,7 @@ void comments_on_info(Block* oldblock, int pos, FILE* outfp, int substitution);
 void generate_predictions(Sequence** seqs, int nseqs, FILE* polymorphism_fp,
 	int seq_identity, FILE* out_fp) {
 
+	init_frq_qij();
     /*
 	reduce redundancy with query sequence 01/03/00
 	so sequence weighting doesn't include more than 1 sequence
