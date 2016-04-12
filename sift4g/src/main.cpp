@@ -4,12 +4,11 @@
 #include <string.h>
 #include <assert.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
-
+#include "utils.hpp"
 #include "database_search.hpp"
 #include "database_alignment.hpp"
 #include "select_alignments.hpp"
+#include "sift_prediction.hpp"
 
 #include "swsharp/evalue.h"
 #include "swsharp/swsharp.h"
@@ -31,6 +30,8 @@ static struct option options[] = {
     {"gap-open", required_argument, 0, 'g'},
     {"matrix", required_argument, 0, 'm'},
     {"out", required_argument, 0, 'o'},
+    {"subst", required_argument, 0, 'S'},
+    {"seq-id", required_argument, 0, 'I'},
     {"sub-results", no_argument, 0, 's'},
     {"outfmt", required_argument, 0, 'f'},
     {"evalue", required_argument, 0, 'E'},
@@ -85,6 +86,8 @@ int main(int argc, char* argv[]) {
     int32_t algorithm = SW_ALIGN;
 
     float median_threshold = 2.75;
+    std::string subst_path = "";
+    int32_t sequence_identity = 100;
 
     uint32_t num_threads = 8;
 
@@ -124,8 +127,14 @@ int main(int argc, char* argv[]) {
         case 'o':
             out_path = optarg;
             break;
+        case 'S':
+            subst_path = optarg;
+            break;
         case 's':
             sub_results = true;
+            break;
+        case 'I':
+            sequence_identity = atoi(optarg);
             break;
         case 'f':
             out_format = getOutFormat(optarg);
@@ -161,10 +170,12 @@ int main(int argc, char* argv[]) {
     assert(max_evalue > 0 && "invalid evalue");
     assert(num_threads > 0 && "invalid thread number");
 
-    struct stat info;
     if (!out_path.empty()) {
-        stat(out_path.c_str(), &info);
-        assert((info.st_mode & S_IFDIR) && "invalid out directory");
+        assert(exists(out_path.c_str()) && "invalid out directory");
+    }
+
+    if (!subst_path.empty()) {
+        assert(exists(subst_path.c_str()) && "invalid substitutions directory");
     }
 
     if (cards_length == -1) {
@@ -201,15 +212,7 @@ int main(int argc, char* argv[]) {
     scorerDelete(scorer);
 
     if (sub_results) {
-        char* alignments_path = new char[1024];
-        if (!out_path.empty()) {
-            strcpy(alignments_path, out_path.c_str());
-            strcat(alignments_path, "/");
-            strcat(alignments_path, "alignments.txt");
-        } else {
-            strcpy(alignments_path, "alignments.txt");
-        }
-
+        char* alignments_path = createFileName("alignments", out_path, ".txt");
         outputShotgunDatabase(alignments, alignments_lenghts, queries_length, alignments_path, out_format);
         delete[] alignments_path;
     }
@@ -224,7 +227,8 @@ int main(int argc, char* argv[]) {
         outputSelectedAlignments(alignment_strings, queries, queries_length, out_path);
     }
 
-    // SIFT PREDICTIONS
+    siftPredictions(alignment_strings, queries, queries_length, subst_path,
+        sequence_identity, out_path);
 
     deleteSelectedAlignments(alignment_strings);
     deleteFastaChains(queries, queries_length);
@@ -339,6 +343,12 @@ static void help() {
     "    --median-threshold <float>\n"
     "        default: 2.75\n"
     "        represents alignment diversity, used to output only a set of alignments\n"
+    "    --subst <string>\n"
+    "        default: current directory\n"
+    "        directory containing substitution files for each query (extension .subst)\n"
+    "        files must have the same name as their respective query to the first space\n"
+    "    --seq-id <int>\n"
+    "        default: 100\n"
     "    --threads <int>\n"
     "        default: 8\n"
     "        number of threads used in thread pool\n"

@@ -6,16 +6,11 @@
 
 #include <assert.h>
 
+#include "utils.hpp"
 #include "database_alignment.hpp"
 
 constexpr uint32_t database_chunk = 1000000000; /* ~1GB */
 constexpr float log_step_percentage = 2.5;
-
-void database_alignment_log(uint32_t part, float part_size, float percentage) {
-    fprintf(stderr, "* processing database part %u (size ~%.2f GB): %.2f/100.00%% *\r",
-        part, part_size, percentage);
-    fflush(stderr);
-}
 
 void valueFunction(double* values, int* scores, Chain* query, Chain** database,
     int databaseLen, int* cards, int cardsLen, void* param_ );
@@ -52,7 +47,7 @@ void alignDatabase(DbAlignment**** alignments, int** alignments_lengths, Chain**
         status &= readFastaChainsPart(&database, &database_length, handle,
             serialized, database_chunk);
 
-        database_alignment_log(part, part_size, 0);
+        database_log(part, part_size, 0);
 
         uint32_t log_counter = 0;
         float log_percentage = log_step_percentage;
@@ -67,7 +62,7 @@ void alignDatabase(DbAlignment**** alignments, int** alignments_lengths, Chain**
 
             ++log_counter;
             if (log_size != 0 && log_counter % log_size == 0 && log_percentage < 100.) {
-                database_alignment_log(part, part_size, log_percentage);
+                database_log(part, part_size, log_percentage);
                 log_percentage += log_step_percentage;
             }
 
@@ -115,7 +110,7 @@ void alignDatabase(DbAlignment**** alignments, int** alignments_lengths, Chain**
             }
         }
 
-        database_alignment_log(part, part_size, 100);
+        database_log(part, part_size, 100);
         ++part;
 
         if (status == 0) {

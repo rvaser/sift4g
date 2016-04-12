@@ -5,8 +5,8 @@ NAME = blimps
 
 OBJ_DIR = obj
 SRC_DIR = src
-INC_DIR = include
-LIB_DIR = lib
+INC_DIR = ../include/$(NAME)
+LIB_DIR = ../lib
 
 I_CMD = $(addprefix -I, $(SRC_DIR))
 L_CMD = $(addprefix -L, )
@@ -22,7 +22,7 @@ API = $(addprefix $(SRC_DIR)/, global.h errors.h memory.h residues.h blocks.h \
 SRC = $(shell find $(SRC_DIR) -type f -regex ".*\.c" -not -name "blimps\.c")
 OBJ = $(subst $(SRC_DIR), $(OBJ_DIR), $(addsuffix .o, $(basename $(SRC))))
 DEP = $(OBJ:.o=.d)
-INC = $(subst $(SRC_DIR), $(INC_DIR)/$(NAME), $(API))
+INC = $(subst $(SRC_DIR), $(INC_DIR), $(API))
 LIB = $(LIB_DIR)/lib$(NAME).a
 
 all: lib include
@@ -37,7 +37,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	@$(CC) $< -c -o $@ -MMD $(CC_FLAGS)
 
-$(INC_DIR)/$(NAME)/%.h: $(SRC_DIR)/%.h
+$(INC_DIR)/%.h: $(SRC_DIR)/%.h
 	@echo [CP] $@
 	@mkdir -p $(dir $@)
 	@cp $< $@
@@ -49,6 +49,6 @@ $(LIB): $(OBJ)
 
 clean:
 	@echo [RM] cleaning
-	@rm $(LIB_DIR) $(INC_DIR) $(OBJ_DIR) -rf
+	@rm $(LIB) $(INC_DIR) $(OBJ_DIR) -rf
 
 -include $(DEP)

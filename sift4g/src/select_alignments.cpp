@@ -10,14 +10,10 @@
 #include <fstream>
 #include <algorithm>
 
+#include "utils.hpp"
 #include "select_alignments.hpp"
 
 constexpr double kLog_2_20 = 4.321928095;
-
-void log(uint32_t part, uint32_t total) {
-    fprintf(stderr, "* processing queries: %.2f/100.00%% *\r", 100 * part / (float) total);
-    fflush(stderr);
-}
 
 float getMedian(float* a, int len);
 
@@ -40,7 +36,7 @@ void selectAlignments(std::vector<std::vector<Chain*>>& dst, DbAlignment*** alig
 
     for (int32_t i = 0; i < queries_length; ++i) {
 
-        log(i + 1, queries_length);
+        query_log(i + 1, queries_length);
 
         alignmentsExtract(dst[i], queries[i], alignments[i], alignments_lengths[i]);
 
@@ -63,7 +59,7 @@ void outputSelectedAlignments(std::vector<std::vector<Chain*>>& alignment_string
         std::ofstream out_file;
         char* out_file_name = new char[1024];
 
-        char* query_name = (char*) chainGetName(queries[i]);
+        const char* query_name = chainGetName(queries[i]);
         int query_len = chainGetLength(queries[i]);
 
         if (!out_path.empty()) {

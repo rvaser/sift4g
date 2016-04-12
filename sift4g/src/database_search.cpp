@@ -9,16 +9,11 @@
 #include <limits>
 
 #include "hash.hpp"
+#include "utils.hpp"
 #include "database_search.hpp"
 
 constexpr uint32_t database_chunk = 100000000; /* ~100MB */
 constexpr float log_step_percentage = 2.5;
-
-void database_search_log(uint32_t part, float part_size, float percentage) {
-    fprintf(stderr, "* processing database part %u (size ~%.2f GB): %.2f/100.00%% *\r",
-        part, part_size, percentage);
-    fflush(stderr);
-}
 
 class Candidate {
 public:
@@ -99,7 +94,7 @@ uint64_t searchDatabase(std::vector<std::vector<uint32_t>>& dst,
         status &= readFastaChainsPart(&database, &database_length, handle,
             serialized, database_chunk);
 
-        database_search_log(part, part_size, 0);
+        database_log(part, part_size, 0);
 
         uint32_t database_split_size = (database_length - database_start) / num_threads;
         std::vector<uint32_t> database_splits(num_threads + 1, database_start);
@@ -154,7 +149,7 @@ uint64_t searchDatabase(std::vector<std::vector<uint32_t>>& dst,
             min_scores[i] = candidates[0][i].back().score;
         }
 
-        database_search_log(part, part_size, 100);
+        database_log(part, part_size, 100);
         ++part;
 
         if (status == 0) {
@@ -202,7 +197,7 @@ void* threadSearchDatabase(void* params) {
         if (thread_data->log && log_percentage < 100.0) {
             ++log_counter;
             if (log_size != 0 && log_counter % log_size == 0) {
-                database_search_log(thread_data->part, thread_data->part_size, log_percentage);
+                database_log(thread_data->part, thread_data->part_size, log_percentage);
                 log_percentage += log_step_percentage;
             }
         }
