@@ -13,7 +13,8 @@
 #include "swsharp/swsharp.h"
 
 void selectAlignments(std::vector<std::vector<Chain*>>& dst, DbAlignment*** alignments,
-    int32_t* alignments_lengths, Chain** queries, int32_t queries_length, float threshold);
+    int32_t* alignments_lengths, Chain** queries, int32_t queries_length,
+    float threshold);
 
 void outputSelectedAlignments(std::vector<std::vector<Chain*>>& alignment_strings,
     Chain** queries, int32_t queries_length, const std::string& out_path);

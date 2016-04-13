@@ -15,6 +15,20 @@
 
 constexpr double kLog_2_20 = 4.321928095;
 
+class ThreadData {
+public:
+    ThreadData(std::vector<Chain*>& _dst, DbAlignment** _alignments, int _alignments_length,
+        Chain* _query, float _threshold):
+            dst(_dst), alignments(_alignments), alignments_length(_alignments_length),
+            query(_query), threshold(_threshold) {
+    }
+
+    std::vector<Chain*>& dst;
+    DbAlignment** alignments;
+    int alignments_length;
+    Chain* query;
+    float threshold;
+};
 float getMedian(float* a, int len);
 
 void aligmentStr(char** query_str, char** target_str, Alignment* alignment, const char gap_item);
@@ -24,28 +38,33 @@ void alignmentsExtract(std::vector<Chain*>& dst, Chain* query, DbAlignment** ali
 
 int alignmentsSelect(std::vector<Chain*>& alignment_strings, Chain* query, float threshold);
 
+void* threadSelectAlignments(void* params);
+
 /*****************************************************************************
 *****************************************************************************/
 
 void selectAlignments(std::vector<std::vector<Chain*>>& dst, DbAlignment*** alignments,
-    int32_t* alignments_lengths, Chain** queries, int32_t queries_length, float threshold) {
+    int32_t* alignments_lengths, Chain** queries, int32_t queries_length,
+    float threshold) {
 
     dst.resize(queries_length);
 
     fprintf(stderr, "** Selecting alignments with median threshold: %.2f **\n", threshold);
 
+    std::vector<ThreadPoolTask*> thread_tasks(queries_length, nullptr);
+
     for (int32_t i = 0; i < queries_length; ++i) {
 
+        auto thread_data = new ThreadData(dst[i], alignments[i], alignments_lengths[i],
+            queries[i], threshold);
+
+        thread_tasks[i] = threadPoolSubmit(threadSelectAlignments, (void*) thread_data);
+    }
+
+    for (int32_t i = 0; i < queries_length; ++i) {
+        threadPoolTaskWait(thread_tasks[i]);
+        threadPoolTaskDelete(thread_tasks[i]);
         query_log(i + 1, queries_length);
-
-        alignmentsExtract(dst[i], queries[i], alignments[i], alignments_lengths[i]);
-
-        uint32_t selected_alignments_length = alignmentsSelect(dst[i], queries[i], threshold);
-
-        for (uint32_t j = selected_alignments_length; j < dst[i].size(); ++j) {
-            chainDelete(dst[i][j]);
-        }
-        dst[i].resize(selected_alignments_length);
     }
 
     fprintf(stderr, "\n\n");
@@ -54,22 +73,14 @@ void selectAlignments(std::vector<std::vector<Chain*>>& dst, DbAlignment*** alig
 void outputSelectedAlignments(std::vector<std::vector<Chain*>>& alignment_strings,
     Chain** queries, int32_t queries_length, const std::string& out_path) {
 
+    std::string out_extension = ".aligned.fasta";
+
     for (uint32_t i = 0; i < alignment_strings.size(); ++i) {
 
         std::ofstream out_file;
-        char* out_file_name = new char[1024];
+        char* out_file_name = createFileName(chainGetName(queries[i]), out_path, out_extension);
 
-        const char* query_name = chainGetName(queries[i]);
         int query_len = chainGetLength(queries[i]);
-
-        if (!out_path.empty()) {
-            strcpy(out_file_name, out_path.c_str());
-            strcat(out_file_name, "/");
-            strcat(out_file_name, query_name);
-        } else {
-            strcpy(out_file_name, query_name);
-        }
-        strcat(out_file_name, ".aligned.fasta");
 
         out_file.open(out_file_name);
         out_file << ">QUERY" << std::endl;
@@ -294,4 +305,26 @@ void aligmentStr(char** query_str, char** target_str, Alignment* alignment, cons
         (*query_str)[i] = query_chr;
         (*target_str)[i] = target_chr;
     }
+}
+
+void* threadSelectAlignments(void* params) {
+
+    auto thread_data = (ThreadData*) params;
+
+    thread_data->dst.clear();
+
+    alignmentsExtract(thread_data->dst, thread_data->query, thread_data->alignments,
+        thread_data->alignments_length);
+
+    uint32_t selected_alignments_length = alignmentsSelect(thread_data->dst,
+        thread_data->query, thread_data->threshold);
+
+    for (uint32_t i = selected_alignments_length; i < thread_data->dst.size(); ++i) {
+        chainDelete(thread_data->dst[i]);
+    }
+    thread_data->dst.resize(selected_alignments_length);
+
+    delete thread_data;
+
+    return nullptr;
 }

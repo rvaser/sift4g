@@ -24,7 +24,7 @@ FILE* errorfp;
 
 Sequence* chainPtrToSequencePtr(Chain* chain_ptr, int32_t id) {
 
-    Sequence* sequence_ptr = (Sequence*) malloc(sizeof(Sequence)); // new Sequence();
+    Sequence* sequence_ptr = (Sequence*) malloc(sizeof(Sequence));
 
     std::string chain_name = std::to_string(id);
     strcpy(sequence_ptr->name, chain_name.c_str());
@@ -33,7 +33,7 @@ Sequence* chainPtrToSequencePtr(Chain* chain_ptr, int32_t id) {
     sequence_ptr->length = chainGetLength(chain_ptr);
     sequence_ptr->max_length = chainGetLength(chain_ptr);
     sequence_ptr->type = AA_SEQ;
-    // sequence_ptr->weight = 0.0;
+    sequence_ptr->weight = 0.0;
 
     sequence_ptr->undefined = 0;
     sequence_ptr->undefined_dbl = 0.0;
@@ -63,7 +63,7 @@ void siftPredictions(const std::vector<std::vector<Chain*>>& alignment_strings,
 
     for (int32_t i = 0; i < queries_length; ++i) {
 
-        // query_log(i + 1, queries_length);
+        query_log(i + 1, queries_length);
 
         char* subst_file_name = createFileName(chainGetName(queries[i]), subst_path, subst_extension);
         FILE* subst_fp = exists(subst_file_name) ? fopen(subst_file_name, "r") : nullptr;
