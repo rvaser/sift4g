@@ -27,7 +27,6 @@ but he was still able to get results.  cleaning up according to him, check this 
 
 */
 
-
 Matrix_Info* initialize_matrix_info (Matrix* matrix)
 {
 	Matrix_Info* new_matrix_info;
@@ -1507,9 +1506,11 @@ read_multiple_polymorphism_data (FILE* infofp, Sequence* seq)
 		polymorph_data[i]->aa = aa_atob['-'];
         	polymorph_data[i]->next = NULL;
 	}
- 	if (infofp == NULL) { printf ("no substitutions read\n");
-			      return polymorph_data;} /* no file to read*/
-printf ("before seg fault?\n");
+	if (infofp == NULL) {
+		// fprintf (errorfp, "no substitutions read\n");
+		return polymorph_data;
+	} /* no file to read*/
+	// printf ("before seg fault?\n");
 	while (fgets (line, LARGE_BUFF_LENGTH, infofp) != NULL) {
                 word1[0] = '\0'; word2[0] = '\0';
                 stringp = strtok (line, " \r\n\t");
@@ -1528,9 +1529,9 @@ printf ("before seg fault?\n");
 
                 if ( pos >= 0  && original_aa != aa_btoa[seq->sequence[pos]] ) {
                         warn_aasubst_not_matching_with_query =1;
-                        fprintf (stderr, "<font color=red>ERROR!!  ");
-                        fprintf (stderr, "Substitution entered says that pos %d is %c",pos +1, original_aa);
-                        fprintf (stderr, " but the sequence file has %c at this position</font><BR><BR>\n", aa_btoa[seq->sequence[pos]]);
+                        fprintf (errorfp, "<font color=red>ERROR!!  ");
+                        fprintf (errorfp, "Substitution entered says that pos %d is %c",pos +1, original_aa);
+                        fprintf (errorfp, " but the sequence file has %c at this position</font><BR><BR>\n", aa_btoa[seq->sequence[pos]]);
                 }
 		tmp_AAnode = polymorph_data[pos];
 		while (tmp_AAnode->next != NULL) {
@@ -1545,8 +1546,7 @@ printf ("before seg fault?\n");
         } /* finished reading file */
 
         if (warn_aasubst_not_matching_with_query == 1) {
-                fprintf (stderr, "<font color=red>*****Please check that you have entered your substitutions and the sequence correctly.*****</font><BR><BR>\n")
-;
+                fprintf (errorfp, "<font color=red>*****Please check that you have entered your substitutions and the sequence correctly.*****</font><BR><BR>\n");
         }
 
         return polymorph_data;

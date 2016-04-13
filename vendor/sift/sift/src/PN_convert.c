@@ -1084,7 +1084,7 @@ static void SIFT_alts(Block* block, Matrix* matrix, double* freqs,
 		||
 	      (matrix->weights[original_aa][pos] < 0.0 && subtract_threshold)
 	) {
-		printf ("WARNING!!! Amino acid %c at pos %d in your original sequence had score %.3f and was not allowed by the prediction.<BR>\n", aa_btoa[original_aa], pos + 1, matrix->weights[original_aa][pos]);
+		fprintf (errorfp, "WARNING!!! Amino acid %c at pos %d in your original sequence had score %.3f and was not allowed by the prediction.<BR>\n", aa_btoa[original_aa], pos + 1, matrix->weights[original_aa][pos]);
 	}
 	} /* end of for pos */
 
@@ -1222,7 +1222,7 @@ void SIFT_alts_test(Block* block, Matrix* matrix, double* freqs,
               (matrix->weights[original_aa][pos] < 0.0 && subtract_threshold)
 
         ) {
-            fprintf (stderr, "WARNING!!! Amino acid %c at pos %d in your original sequence had score %.3f and was not allowed by the prediction. <BR>\n", aa_btoa[original_aa], pos, matrix->weights[original_aa][pos]);
+            fprintf (errorfp, "WARNING!!! Amino acid %c at pos %d in your original sequence had score %.3f and was not allowed by the prediction. <BR>\n", aa_btoa[original_aa], pos, matrix->weights[original_aa][pos]);
         }
 
         } /* end of for pos */

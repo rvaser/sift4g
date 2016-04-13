@@ -107,7 +107,7 @@ subblock_of_seqs_with_aa_at_pos (Block* originalblock, int test_position)
 		      originalblock->residues[seq][test_position] <=  22) {
 			Insert (originalblock->sequences[seq].name, seqnamehash);
   		  } else {
-			printf ("not including %s with %c at %d\n",
+			fprintf (errorfp, "not including %s with %c at %d\n",
 				originalblock->sequences[seq].name,
 			aa_btoa[originalblock->residues[seq][test_position]],
 			test_position);
@@ -584,7 +584,6 @@ percentage_identity_with_seq0_seqs (Sequence* seqs[MAXSEQ], int nseqs)
 	int identical, pos;
 	int alignment_length;
 
-
 	for (i = 0; i < nseqs; i++) {
 		assert (seqs[i]->length == seqs[0]->length);
 		/* this is an alignment, lengths should be equal */
@@ -599,11 +598,10 @@ percentage_identity_with_seq0_seqs (Sequence* seqs[MAXSEQ], int nseqs)
 				alignment_length--;
 			}
 		}
-/*	printf("%d identical %d aligned\n", identical, alignment_length); */
-	seqs[i]->undefined = (int) round ((double) identical/
-						   (double)alignment_length * 100);
+        // printf("%d identical %d aligned\n", identical, alignment_length);
+        seqs[i]->undefined = (int) round ((double) identical / (double) alignment_length * 100);
 
-		printf ("%s has %d identity\n", seqs[i]->name, seqs[i]->undefined);
+		fprintf(errorfp, "%s has %d identity\n", seqs[i]->name, seqs[i]->undefined);
 	}
 }
 
@@ -792,18 +790,18 @@ remove_seqs_percent_identical_to_query (Sequence* seqs[MAXSEQ], int* no_of_seqs,
 	nseqs = *(no_of_seqs);
 	entered = 0;
 
-	printf ("*** The following sequences have been removed because they ");
-	printf (" were found to be over %d%% identical with your protein query: ", (int) percent_identical);
+	// printf ("*** The following sequences have been removed because they ");
+	// printf (" were found to be over %d%% identical with your protein query: ", (int) percent_identical);
 
-	fprintf (stderr, "*** The following sequences have been removed because they ");
-    fprintf (stderr, " were found to be over %d%% identical with your protein query: ", (int) percent_identical);
+	fprintf (errorfp, "*** The following sequences have been removed because they ");
+    fprintf (errorfp, " were found to be over %d%% identical with your protein query: ", (int) percent_identical);
 
     percentage_identity_with_seq0_seqs (seqs, nseqs);
     for (i = 1; i < nseqs; i++)  {
         if (seqs[i]->undefined >= percent_identical ) { /* >= identical, remove */
             entered = 1;
-			printf (" %s,", seqs[i]->name);
-			fprintf (stderr, " %s,", seqs[i]->name);
+			// printf (" %s,", seqs[i]->name);
+			fprintf (errorfp, " %s,", seqs[i]->name);
 
             /* below was removed to reduce verbiage on webpage */
             /* printf ("*** Sequence %s was found to be %d%% ",
@@ -830,15 +828,15 @@ remove_seqs_percent_identical_to_query (Sequence* seqs[MAXSEQ], int* no_of_seqs,
 			i--;
 		}
     }
-	if (entered == 1) {
+	/*if (entered == 1) {
 		printf (".\n\n"); fprintf ( stderr, ".<BR><BR>\n");
 	} else {
 		printf (" NONE.\n\n"); fprintf (stderr, " NONE.<BR><BR>\n");
 	}
 
 	if (*no_of_seqs != nseqs) {
-/*		fprintf (stderr, "*** <B>%d</B> sequences were used to estimate probabilities.  ***<BR>\n", nseqs); */
-	}
+		// fprintf (stderr, "*** <B>%d</B> sequences were used to estimate probabilities.  ***<BR>\n", nseqs);
+	} */
 	*no_of_seqs = nseqs;
 }
 

@@ -1088,7 +1088,7 @@ Block *block;
          {
             sprintf(ErrorBuffer, "pb_weights:%d ignored for %s\n",
                  block->residues[seq][pos], block->number);
-	    ErrorReport(INFO_ERR_LVL);
+	        // ErrorReport(INFO_ERR_LVL);
          }
       }
 

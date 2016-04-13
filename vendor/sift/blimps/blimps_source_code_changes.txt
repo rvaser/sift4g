@@ -17,5 +17,6 @@ residues.h, *same as above*
 sequences.h, *same as above*
 pattern.c, commented line 48 (static void print_residue()) because function is never used
 version.c, added "%s\" to fprintfs on lines 183 and 184
+convert.c, commented ErrorReport(INFO_ERR_LVL); which was reporting messages when X was in sequence
 Makefile.am, removed
 Makefile.im, removed
