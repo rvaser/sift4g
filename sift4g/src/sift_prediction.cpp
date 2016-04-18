@@ -19,6 +19,8 @@ extern "C" {
     #include "sift/Alignment.h"
 }
 
+constexpr uint32_t kMaxSequences = 400;
+
 // declared extern in sift...
 FILE* errorfp;
 
@@ -71,7 +73,7 @@ void siftPredictions(const std::vector<std::vector<Chain*>>& alignment_strings,
         char* out_file_name = createFileName(chainGetName(queries[i]), out_path, out_extension);
         FILE* out_fp = fopen(out_file_name, "w");
 
-        int32_t num_sequences = 400 < alignment_strings[i].size() ? 400 : alignment_strings[i].size();
+        int32_t num_sequences = (kMaxSequences - 1) < alignment_strings[i].size() ? (kMaxSequences - 1) : alignment_strings[i].size();
 
         Sequence** sequences = new Sequence*[num_sequences + 1];
         sequences[0] = chainPtrToSequencePtr(queries[i], 0);

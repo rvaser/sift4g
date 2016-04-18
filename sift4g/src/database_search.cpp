@@ -12,7 +12,7 @@
 #include "utils.hpp"
 #include "database_search.hpp"
 
-constexpr uint32_t database_chunk = 100000000; /* ~100MB */
+constexpr uint32_t database_chunk = 250000000; /* ~250MB */
 constexpr float log_step_percentage = 2.5;
 
 class Candidate {
