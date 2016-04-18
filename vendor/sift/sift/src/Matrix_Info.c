@@ -384,7 +384,7 @@ void output_Matrix_Info (Matrix_Info* info_matrix, FILE* omfp, int option, int s
   int pos_observed_tolerant, pos_error_tn, pos_notobserved_intolerant,
 	pos_error_fp, pos_total;
   char c; int l;
-  int print_correct, print_incorrect, print_X, print_type;
+  int print_correct, print_incorrect, print_X, print_type = 0;
 
 	print_correct = 1; print_incorrect = 2; print_X =3;
   correct = 0; error_fp=0; error_tn = 0, total=0;
@@ -467,7 +467,7 @@ void output_Matrix_Info (Matrix_Info* info_matrix, FILE* omfp, int option, int s
 				case 2: /* +- phenotype is - */
 					if ( matrix->weights[aa_atob[c]][l] >= 0) {
 						pos_error_fp++;	error_fp++;
-		printf ("incorrect less severe %d %d %c\n", l, matrix->weights[aa_atob[c]][l], c);
+		printf ("incorrect less severe %d %d %c\n", l, (int) round (matrix->weights[aa_atob[c]][l]), c);
 						print_type = print_incorrect;
 					} else if (matrix->weights[aa_atob[c]][l] < 0){
 					pos_notobserved_intolerant++;
@@ -612,7 +612,7 @@ void output_Matrix_Info_float (Matrix_Info* info_matrix, FILE* omfp, int option,
   int pos_observed_tolerant, pos_error_tn, pos_notobserved_intolerant,
         pos_error_fp, pos_total;
   char c; int l;
-  int print_correct, print_incorrect, print_X, print_type;
+  int print_correct, print_incorrect, print_X, print_type = 0;
 
   print_correct = 1; print_incorrect = 2; print_X =3;
   correct = 0; error_fp=0; error_tn = 0, total=0;
@@ -905,21 +905,6 @@ normalize_matrix (Matrix* matrix)
 	}
 } /* end of normalize_matrix */
 
-void
-allow_min_and_above (Matrix* matrix)
-{
-	int min_aa, pos, aa;
-
-	assert (matrix->block != NULL);
-
-	for (pos = 0; pos < matrix->width; pos++) {
-		min_aa = min_aa_in_column (matrix, pos);
-		for (aa = 1; aa < AAS; aa++) {
-			matrix->weights[aa][pos] -= min_aa;
-		}
-	}
-}
-
 int
 min_aa_in_column (Matrix * matrix, int pos)
 {
@@ -934,6 +919,21 @@ min_aa_in_column (Matrix * matrix, int pos)
 		}
 	}
 	return min_aa;
+}
+
+void
+allow_min_and_above (Matrix* matrix)
+{
+	int min_aa, pos, aa;
+
+	assert (matrix->block != NULL);
+
+	for (pos = 0; pos < matrix->width; pos++) {
+		min_aa = min_aa_in_column (matrix, pos);
+		for (aa = 1; aa < AAS; aa++) {
+			matrix->weights[aa][pos] -= min_aa;
+		}
+	}
 }
 
 static void pssm_ratio_mutated_to_normal (Matrix* matrix, double threshold)
@@ -1045,6 +1045,8 @@ index_for_char (char c)
 
 		default: printf ("unknown character %c\n", c );
 	} /* end switch */
+
+	return -1;
 }
 
 void output_Matrix_Info_float_uncertaintybin (Matrix_Info* info_matrix,
@@ -1060,7 +1062,7 @@ void output_Matrix_Info_float_uncertaintybin (Matrix_Info* info_matrix,
   int pos_observed_tolerant, pos_error_tn, pos_notobserved_intolerant,
         pos_error_fp, pos_total;
   char c; int l;
-  int print_correct, print_incorrect, print_X, print_type;
+  int print_correct, print_incorrect, print_X, print_type = 0;
   int uncertain_aa, uncertain_tolerant, uncertain_intolerant;
   int pos_uncertain_aa, pos_uncertain_tolerant, pos_uncertain_intolerant;
   int total_correct, total_counted;

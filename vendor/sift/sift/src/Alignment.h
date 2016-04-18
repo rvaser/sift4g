@@ -178,4 +178,6 @@ int seq_not_all_Xes (Sequence* seq);
 
 void sort_seq_by_identity (Sequence* seqs[MAXSEQ], int num_seqs);
 
+int read_psiblast_header_until_first_no_error (FILE* fp,int return_error);
+
 #endif

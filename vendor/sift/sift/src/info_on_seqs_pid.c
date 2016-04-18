@@ -5,6 +5,7 @@
 
 #include <assert.h>
 
+#include "Array_math.h"
 #include "Alignment.h"
 #include "PN_blocks.h"
 #include "PN_convert.h"
@@ -132,6 +133,7 @@ output_predictions (AAnode* polymorph_data, int* residues_stored,
 				block_with_seqs_at_pos = subblock_of_seqs_with_aa_at_pos (pssm->block, pos);
             	info_array =  calculate_info_for_each_pos (block_with_seqs_at_pos, FALSE);
                 median = median_of_array (info_array, pssm->block->width);
+				block_constructed = 1;
 			}
 		while (current != NULL) {
 			substitution = current->aa;
@@ -194,6 +196,7 @@ mic_with_seq (Block* oldblock, int pos)
     free (info_array);
     free_block (block_with_seqs_at_pos);
 
+	return median;
 } /* end mic_with_seq */
 
 void
@@ -390,4 +393,5 @@ sequences_over_length_threshold (Sequence* newseqs[MAXSEQ], Sequence* seqs[MAXSE
 		}
 	}
 
+	return newseq_index;
 } /* end of sequences_over_length_threshold */

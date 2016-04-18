@@ -16,7 +16,7 @@ int
 lowest_scoring_aa (Matrix* matrix, int pos)
 {
 	struct working* col;
-	int aa, min_aa;
+	int aa, min_aa = 1;
 	double min;
 
 	min = 10000;
@@ -163,6 +163,8 @@ PIMA_index (char c)
 		case 'G': return 18;
 		case 'P': return 19;
 	}
+
+	return -1; // don't know which value to return if character is not in the list above
 }
 
 /* sort list of amino acid scores from highest to lowest */

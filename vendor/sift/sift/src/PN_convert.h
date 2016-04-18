@@ -66,6 +66,7 @@ struct rank_cell {
 	double value;
 };
 
+int* calculate_basic_aa_stored (Block* block);
 
 /*
  * block_to_matrix
@@ -170,7 +171,7 @@ struct working *make_col();
 
 void counts();
 
-int count_residues(col);
+int count_residues(struct working* col);
 
 void psiblast_alts (Block* block, Matrix* matrix, double* freqs, struct float_qij* qij);
 
@@ -184,10 +185,8 @@ void gap_pseudocounts ( struct working* col, double no_of_gaps);
 
 void qij_matrix_profile (Block* block, Matrix* matrix, struct float_qij *qij);
 
-static void SIFT_alts(Block* block, Matrix* matrix, double* freqs,
-                struct float_qij* qij,
-                int diri_pseudocounts, int gap_option,
-                int exp_option, int subtract_threshold);
+void SIFT_alts(Block* block, Matrix* matrix, double* freqs, struct float_qij* qij,
+    int diri_pseudocounts, int gap_option, int exp_option, int subtract_threshold);
 
 Residue find_max_aa_in_pos (Matrix* matrix, int pos);
 
@@ -198,5 +197,7 @@ void SIFT_alts_test(Block* block, Matrix* matrix, double* freqs,
                 struct float_qij* qij,
                 int diri_pseudocounts, int gap_option,
                 int exp_option, int subtract_threshold);
+
+Matrix* SIFT_prediction (Block* block, int diri_option, int gap_option, int exp_option, int subtract_option);
 
 #endif /*  CONVERT_H_ */

@@ -65,4 +65,7 @@ void copy_weights (Block* block, Block* oldblock);
 
 double calculate_median_info_for_pos_in_block (Block* block, int pos);
 
+double calculate_median_information_of_block (Block* block, int error_correction,
+	int suppress_pbweights);
+
 #endif

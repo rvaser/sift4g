@@ -398,7 +398,7 @@ static void pseudo_alts(col, qij, beta)
 int
 find_min_aa_in_pssm (struct working* col, struct work_pssm* pssm, const int pos)
 {
-	int aa, min_aa;
+	int aa, min_aa = 0;
 	double min_value;
 
 	min_value = 1000;
@@ -454,7 +454,7 @@ scoring_matrix_profile (Block* block, Matrix* matrix)
     //    read_substitution_scoring_matrix (matrixfp, sij);
 
 	//fclose (matrixfp);
-    int** sij = default_blosum62;
+    int (*sij)[24] = default_blosum62;
 
 	for (pos = 0; pos < block->width; pos++) {
 		original_aa = block->residues[0][pos];
@@ -712,7 +712,7 @@ psiblast_alts (Block* block, Matrix* matrix, double* freqs, struct float_qij* qi
 int
 find_max_aa_in_col (struct working* col)
 {
-	int aa, max_aa;
+	int aa, max_aa = 1;
 	double max = 0.0;
 
 	for (aa = 1; aa < AAS; aa++) {
@@ -728,7 +728,7 @@ find_max_aa_in_col (struct working* col)
 int
 find_max_aa_in_pssm (struct work_pssm* pssm , int pos)
 {
-	int aa, max_aa;
+	int aa, max_aa = 1;
 	double max;
 
 	max = 0.0;
@@ -760,7 +760,7 @@ static void PN_make_alts(block, matrix, freqs, qij, RTot, scale)
   int original_aa;
   struct dirichlet* diric;
   int min_aa, max_aa;
-  double min_freq, no_of_gaps;
+  double min_freq = 1, no_of_gaps;
   double cutoff_freq[MATRIX_AA_WIDTH];
   int rank_matrix[AAS][AAS];
   double number_of_observed_aas;
@@ -971,7 +971,7 @@ void calculate_counts (Block* block)
 	}
 }
 
-static void SIFT_alts(Block* block, Matrix* matrix, double* freqs,
+void SIFT_alts(Block* block, Matrix* matrix, double* freqs,
 		struct float_qij* qij,
 		int diri_pseudocounts, int gap_option,
 		int exp_option, int subtract_threshold)
@@ -1137,7 +1137,7 @@ void SIFT_alts_test(Block* block, Matrix* matrix, double* freqs,
 
         construct_rank_matrix ( rank_matrix);
    }
-  sprintf (matrix_file, "%s/docs/default.qij");
+  // sprintf (matrix_file, "%s/docs/default.qij", blimps_dir);
   init_frq_qij_for_matrix (matrix_file);
 
   /*--------------  Do one position at a time -------------------*/
@@ -2034,7 +2034,7 @@ void pseudo_diric(struct working* col, struct dirichlet* diric, double epsilon)
 int
 find_min_aa_in_col_reg (struct working* col)
 {
-        int aa, min_aa;
+        int aa, min_aa = 1;
         double min;
 
         min = 10000;
@@ -2051,7 +2051,7 @@ find_min_aa_in_col_reg (struct working* col)
 char
 find_min_aa_in_col (struct working* col)
 {
-	int aa, min_aa;
+	int aa, min_aa = 1;
 	double min;
 
 	min = 1000;
@@ -2365,7 +2365,7 @@ calculate_basic_aa_fraction (Block* block)
 int*
 calculate_basic_aa_stored (Block* block)
 {
-        int* residues_stored;
+        int* residues_stored = NULL;
         int pos;
 
         residues_stored = (int *) calloc (block->width, sizeof (int));
@@ -2373,7 +2373,6 @@ calculate_basic_aa_stored (Block* block)
                 residues_stored[pos] = number_of_real_aminoacids (block, pos);
         }
         return residues_stored;
-
 }
 
 void

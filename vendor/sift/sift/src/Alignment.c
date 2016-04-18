@@ -1237,6 +1237,7 @@ compare_alignments (Sequence* align1[MAXSEQ], Sequence* align2[MAXSEQ],
 	}
 	return TRUE;
 */
+    return FALSE;
 } /* end of compare_alignments */
 
 int
@@ -1276,6 +1277,7 @@ at the same place */
 
 	return TRUE;
 */
+    return FALSE;
 } /* end of compare_pairwise_alignments */
 
 int
@@ -1304,7 +1306,7 @@ cleanup_short_length_seqs (Sequence* seqs[MAXSEQ], int *nseqs)
 	newnseqs = oldnseqs;
 	min_length = (int) ( 0.8* (double) seqs[0]->length);
 
-	for (i = 0; i < oldnseqs, i < newnseqs; i++) {
+	for (i = 0; i < oldnseqs && i < newnseqs; i++) {
 		length = get_length (seqs[i]);
 		if (length < min_length ) {
 			free_sequence (seqs[i]);
@@ -1736,7 +1738,7 @@ read_1st_4lines_of_pairwise (FILE* fp, char subject_name[SMALL_BUFF_LENGTH],
 	assert (fp != NULL);
 	fgets (line, LARGE_BUFF_LENGTH, fp);
 	if (strstr (line, "Query") == NULL) {
-		printf ("%s line should have Query:\n");
+		printf ("%s line should have Query:\n", line);
 		exit (-1);
 	}
 	strptr = strtok (line, " \t\r\n"); /* this should be Query */

@@ -131,4 +131,6 @@ void print_stat_info_on_pssm (Matrix_Info* info_matrix);
 
 int index_for_char (char c);
 
+double calculate_max_info_possible (int num_sequences);
+
 #endif

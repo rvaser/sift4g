@@ -16,7 +16,7 @@ L_CMD = $(addprefix -L, $(BLIMPS_DIR)/lib)
 
 DEP_LIBS = $(BLIMPS_DIR)/lib/libblimps.a
 
-CC_FLAGS = $(I_CMD) -O2 -w
+CC_FLAGS = $(I_CMD) -O2 -Wall -Wno-char-subscripts -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-function -Wno-unused-result
 LD_FLAGS = $(I_CMD) $(L_CMD) -lblimps -lm
 
 API = $(addprefix $(SRC_DIR)/, info_on_seqs_pid.h Alignment.h Array_math.h \

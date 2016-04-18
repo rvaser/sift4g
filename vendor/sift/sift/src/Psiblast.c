@@ -76,14 +76,14 @@ reading_alignment_at_score_line (Aligned_Pair* alignment,
 
 	buff = strstr(Buffer, "Score=");
         if (buff != NULL) {
-                sscanf (buff, "Score = %d", alignment->score);
+                sscanf (buff, "Score = %d", &(alignment->score));
         } else {
                 fprintf (errorfp, "Unable to read Score, parsing incorrect");
                 exit (-1);
         }
         buff = strstr (Buffer, "Expect = ");
         if (buff != NULL) {
-                sscanf (buff, "Expect = %lf", alignment->evalue);
+                sscanf (buff, "Expect = %lf", &(alignment->evalue));
         } else {
                 fprintf (errorfp, "Unable to read e-value, parsing incorrect");
                 exit (-1);
@@ -94,7 +94,8 @@ reading_alignment_at_score_line (Aligned_Pair* alignment,
         fgets (Buffer, LARGE_BUFF_LENGTH, fp); /* get blank line */
         fgets (Buffer, LARGE_BUFF_LENGTH, fp); /* get first line */;
         get_start_pos = TRUE;
-        while (Buffer != "\n") {
+        // while (Buffer != "\n") {
+        while (strcmp(Buffer, "\n") != 0) {
                 read_4_alignment_lines (Buffer, alignment, fp, get_start_pos);
                 get_start_pos = FALSE; /* read 1rst 4 alignment lines*/
                                         /* already got the starting pos*/
@@ -296,7 +297,7 @@ psiblast_system_call_input_alignment
                 ncbi_dir, database,  result_file,
                 original_alignment_filename, new_checkpoint_filename,
                 query_filename);
-printf (command_line);
+        printf ("%s\n", command_line);
         system (command_line);
 }
 

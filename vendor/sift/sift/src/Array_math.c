@@ -1,5 +1,6 @@
 /* COPYRIGHT 2000 , Fred Hutchinson Cancer Research Center */
 
+#include <math.h>
 #include <assert.h>
 
 #include "Array_math.h"
