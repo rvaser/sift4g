@@ -5,6 +5,7 @@ SIFT (Sorting Intolerant From Tolerant) For Genomes (http://www.nature.com/nprot
 ## Requirements
 - g++ (4.\*+)
 - GNU Make
+- nvcc (2.\*+) (optional)
 
 \*note: It was only tested on Linux (Ubuntu 14.04).
 
@@ -16,7 +17,11 @@ To build SIFT4G run the following commands from your terminal:
     cd sift4g/
     make
 
-Running the 'make' command will create the bin folder which contains the sift4g executable. If you left out '--recursive' from git clone, after cloning run the following commands:
+Running the 'make' command will create the bin folder which contains the sift4g executable.
+
+If you do not have a CUDA enabled graphichs card (and nvcc compiler) run 'make cpu' instead.
+
+If you left out '--recursive' from git clone, run the following commands before running 'make':
 
     git submodule init
     git submodule update
