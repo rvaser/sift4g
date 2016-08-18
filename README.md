@@ -3,7 +3,7 @@
 SIFT (Sorting Intolerant From Tolerant) For Genomes (http://www.nature.com/nprot/journal/v11/n1/full/nprot.2015.123.html)
 
 ## Requirements
-- g++ (4.8\*+)
+- g++ (4.8+)
 - GNU Make
 - nvcc (2.\*+) (optional)
 
