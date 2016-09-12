@@ -65,10 +65,10 @@ void siftPredictions(const std::vector<std::vector<Chain*>>& alignment_strings,
 
     for (int32_t i = 0; i < queries_length; ++i) {
 
-        query_log(i + 1, queries_length);
+        queryLog(i + 1, queries_length);
 
         char* subst_file_name = createFileName(chainGetName(queries[i]), subst_path, subst_extension);
-        FILE* subst_fp = exists(subst_file_name) ? fopen(subst_file_name, "r") : nullptr;
+        FILE* subst_fp = isExtantPath(subst_file_name) ? fopen(subst_file_name, "r") : nullptr;
 
         char* out_file_name = createFileName(chainGetName(queries[i]), out_path, out_extension);
         FILE* out_fp = fopen(out_file_name, "w");

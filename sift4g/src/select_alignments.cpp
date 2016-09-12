@@ -64,7 +64,7 @@ void selectAlignments(std::vector<std::vector<Chain*>>& dst, DbAlignment*** alig
     for (int32_t i = 0; i < queries_length; ++i) {
         threadPoolTaskWait(thread_tasks[i]);
         threadPoolTaskDelete(thread_tasks[i]);
-        query_log(i + 1, queries_length);
+        queryLog(i + 1, queries_length);
     }
 
     fprintf(stderr, "\n\n");

@@ -20,8 +20,8 @@ typedef struct CharInt {
 } CharInt;
 
 static struct option options[] = {
-    {"query", required_argument, 0, 'i'},
-    {"target", required_argument, 0, 'j'},
+    {"query", required_argument, 0, 'q'},
+    {"database", required_argument, 0, 'd'},
     {"kmer-length", required_argument, 0, 'k'},
     {"max-candidates", required_argument, 0, 'C'},
     {"median-threshold", required_argument, 0, 'T'},
@@ -93,17 +93,17 @@ int main(int argc, char* argv[]) {
 
     while (1) {
 
-        char argument = getopt_long(argc, argv, "i:j:g:e:t:h", options, NULL);
+        char argument = getopt_long(argc, argv, "q:d:g:e:t:h", options, NULL);
 
         if (argument == -1) {
             break;
         }
 
         switch (argument) {
-        case 'i':
+        case 'q':
             query_path = optarg;
             break;
-        case 'j':
+        case 'd':
             database_path = optarg;
             break;
         case 'k':
@@ -161,8 +161,8 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    assert(!query_path.empty() && "missing option -i (query file)");
-    assert(!database_path.empty() && "missing option -j (database file)");
+    assert(!query_path.empty() && "missing option -q (query file)");
+    assert(!database_path.empty() && "missing option -d (database file)");
 
     assert(kmer_length > 2 && kmer_length < 6 && "kmer_length possible values = 3,4,5");
     assert(max_candidates > 0 && "invalid max candidates number");
@@ -171,11 +171,11 @@ int main(int argc, char* argv[]) {
     assert(num_threads > 0 && "invalid thread number");
 
     if (!out_path.empty()) {
-        assert(exists(out_path.c_str()) && "invalid out directory");
+        assert(isExtantPath(out_path.c_str()) && "invalid out directory");
     }
 
     if (!subst_path.empty()) {
-        assert(exists(subst_path.c_str()) && "invalid substitutions directory");
+        assert(isExtantPath(subst_path.c_str()) && "invalid substitutions directory");
     }
 
     if (cards_length == -1) {
@@ -274,13 +274,13 @@ static int getAlgorithm(char* optarg) {
 
 static void help() {
     printf(
-    "usage: sift4g -i <query db file> -j <target db file> [arguments ...]\n"
+    "usage: sift4g -q <query file> -d <database file> [arguments ...]\n"
     "\n"
     "arguments:\n"
-    "    -i, --query <file>\n"
+    "    -q, --query <file>\n"
     "        (required)\n"
     "        input fasta database query file\n"
-    "    -j, --target <file>\n"
+    "    -d, --database <file>\n"
     "        (required)\n"
     "        input fasta database target file\n"
     "    -g, --gap-open <int>\n"
