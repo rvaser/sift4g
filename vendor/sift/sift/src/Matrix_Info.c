@@ -909,7 +909,7 @@ int
 min_aa_in_column (Matrix * matrix, int pos)
 {
 	double min;
-	int min_aa, aa;
+	int min_aa = 0, aa;
 
 	min = 1000;
 	for (aa = 0; aa < AAS; aa++) {
@@ -1496,7 +1496,7 @@ read_multiple_polymorphism_data (FILE* infofp, Sequence* seq)
         char* stringp;
         char *string_pos;
         char original_aa, substituted_aa;
-        char word1[10], word2[10];
+        char word1[25], word2[25];
         AAnode* polymorph_data;
         int warn_aasubst_not_matching_with_query ;
 	AAnode newAAnode; AAnode tmp_AAnode;
@@ -1564,7 +1564,7 @@ read_polymorphism_data (FILE* infofp, Sequence* seq)
         char* stringp;
         char *string_pos;
         char original_aa, substituted_aa;
-        char word1[10], word2[10];
+        char word1[25], word2[25];
         Residue* polymorph_data;
 	int warn_aasubst_not_matching_with_query ;
 
