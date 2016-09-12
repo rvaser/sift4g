@@ -19,7 +19,7 @@ To build SIFT4G run the following commands from your terminal:
 
 Running the 'make' command will create the bin folder which contains the sift4g executable.
 
-*If you do not have a CUDA enabled graphichs card (and the nvcc compiler) run 'make cpu' instead.*
+**If you do not have a CUDA enabled graphichs card (and the nvcc compiler) run 'make cpu' instead.**
 
 If you left out '--recursive' from git clone, run the following commands before running 'make':
 
