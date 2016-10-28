@@ -664,7 +664,7 @@ void remove_seqs_percent_identical_to_query(Chain *queries, std::vector<Chain *>
 
         /*Read curr element, delete if beyond threshold, else move to next pos*/
 	/// BUG, (int) round <value>
-        if ( ((int) round (perc_similar)) >= seq_identity ){
+        if ( perc_similar >= seq_identity ){
 
             alignment_string.erase(alignment_string.begin() + currPos);
 
