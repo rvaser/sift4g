@@ -13,7 +13,6 @@
 #include "utils.hpp"
 #include "select_alignments.hpp"
 
-constexpr double kLog_2_20 = 4.321928095;
 
 class ThreadData {
 public:
@@ -29,7 +28,6 @@ public:
     Chain* query;
     float threshold;
 };
-float getMedian(float* a, int len);
 
 void aligmentStr(char** query_str, char** target_str, Alignment* alignment, const char gap_item);
 
@@ -64,7 +62,7 @@ void selectAlignments(std::vector<std::vector<Chain*>>& dst, DbAlignment*** alig
     for (int32_t i = 0; i < queries_length; ++i) {
         threadPoolTaskWait(thread_tasks[i]);
         threadPoolTaskDelete(thread_tasks[i]);
-        queryLog(i + 1, queries_length);
+        query_log(i + 1, queries_length);
     }
 
     fprintf(stderr, "\n\n");

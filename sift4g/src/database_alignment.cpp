@@ -47,7 +47,7 @@ void alignDatabase(DbAlignment**** alignments, int** alignments_lengths, Chain**
         status &= readFastaChainsPart(&database, &database_length, handle,
             serialized, database_chunk);
 
-        databaseLog(part, part_size, 0);
+        database_log(part, part_size, 0);
 
         uint32_t log_counter = 0;
         float log_percentage = log_step_percentage;
@@ -62,7 +62,7 @@ void alignDatabase(DbAlignment**** alignments, int** alignments_lengths, Chain**
 
             ++log_counter;
             if (log_size != 0 && log_counter % log_size == 0 && log_percentage < 100.) {
-                databaseLog(part, part_size, log_percentage);
+                database_log(part, part_size, log_percentage);
                 log_percentage += log_step_percentage;
             }
 
@@ -110,7 +110,7 @@ void alignDatabase(DbAlignment**** alignments, int** alignments_lengths, Chain**
             }
         }
 
-        databaseLog(part, part_size, 100);
+        database_log(part, part_size, 100);
         ++part;
 
         if (status == 0) {
