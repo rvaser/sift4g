@@ -1,0 +1,1 @@
+obj/sift_prediction_scors_const.o: src/sift_prediction_scors_const.cpp
