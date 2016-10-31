@@ -25,7 +25,8 @@ void siftPredictions(std::vector<std::vector<Chain*>>& alignment_strings,
 
 /* warning, this code changes the alignment_strings by adding query 
 to the alignment  */
-
+	fprintf(stderr, "** Generating SIFT predictions with sequence identity: %.2f%% **\n", (float) sequence_identity);
+	
     std::string subst_extension = ".subst";
     std::string out_extension = ".SIFTprediction_new";
 
