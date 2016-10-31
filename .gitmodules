@@ -1,0 +1,3 @@
+[submodule "vendor/swsharp"]
+	path = vendor/swsharp
+	url = https://github.com/mkorpar/swsharp.git

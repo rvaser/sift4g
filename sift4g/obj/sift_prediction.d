@@ -15,27 +15,4 @@ obj/sift_prediction.o: src/sift_prediction.cpp src/utils.hpp \
  ../vendor/swsharp/include/swsharp/pre_proc.h \
  ../vendor/swsharp/include/swsharp/reconstruct.h \
  ../vendor/swsharp/include/swsharp/threadpool.h \
- src/sift_prediction_scores.hpp \
- ../vendor/sift/include/sift/info_on_seqs_pid.h \
- ../vendor/sift/include/blimps/blocksprogs.h \
- ../vendor/sift/include/blimps/global.h \
- ../vendor/sift/include/blimps/license.h \
- ../vendor/sift/include/blimps/strutil.h \
- ../vendor/sift/include/blimps/errors.h \
- ../vendor/sift/include/blimps/memory.h \
- ../vendor/sift/include/blimps/residues.h \
- ../vendor/sift/include/blimps/blastapp.h \
- ../vendor/sift/include/blimps/alphabet.h \
- ../vendor/sift/include/blimps/aabet.h \
- ../vendor/sift/include/blimps/ntbet.h \
- ../vendor/sift/include/blimps/gcode.h \
- ../vendor/sift/include/blimps/blocks.h \
- ../vendor/sift/include/blimps/output.h \
- ../vendor/sift/include/blimps/sequences.h \
- ../vendor/sift/include/blimps/matrix.h \
- ../vendor/sift/include/blimps/pattern.h \
- ../vendor/sift/include/blimps/convert.h \
- ../vendor/sift/include/blimps/frequency.h \
- ../vendor/sift/include/blimps/files.h \
- ../vendor/sift/include/blimps/protomat.h \
- ../vendor/sift/include/sift/Alignment.h
+ src/sift_prediction_scores.hpp

@@ -227,9 +227,7 @@ int main(int argc, char* argv[]) {
         outputSelectedAlignments(alignment_strings, queries, queries_length, out_path);
     }
 
-    siftPredictions(alignment_strings, queries, queries_length, subst_path,
-        sequence_identity, out_path);
-    siftPredictionsNoSIFT (alignment_strings, queries, 
+    siftPredictions (alignment_strings, queries, 
 				queries_length, subst_path,
 			        sequence_identity, out_path);
     deleteSelectedAlignments(alignment_strings);

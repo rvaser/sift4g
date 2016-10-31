@@ -86,7 +86,6 @@ void calcEpsilon (std::vector <std::vector <double>>  weighted_matrix, std::vect
 			sum = sum / pos_tot;
 			epsilon[pos] = exp ((double) sum);
 		}
-		//cout << "Epsilon pos: " << to_string (pos) << " ep " << to_string (epsilon[pos]) << endl;
 	}
 }
 
@@ -110,7 +109,6 @@ void addMedianSeqInfo (std::vector<Chain*> alignment_string, Chain* query, std::
 	vector <double> number_of_diff_aas (query_length);
 
 	for (auto it = medianSeqInfoForPos.begin(); it != medianSeqInfoForPos.end(); ++it) {
-		//cout << "pos " << it->first << endl;
 		int pos = stoi( it->first); // position in protein, start count at 1
 		pos = pos -1;  // position in array
 		if (it->second == -1) { 
@@ -127,7 +125,7 @@ void addMedianSeqInfo (std::vector<Chain*> alignment_string, Chain* query, std::
 			seqs_without_X  (alignment_string, pos, alignment_with_noX_at_pos );
 
 			int num_seqs_in_alignment = alignment_with_noX_at_pos.size();
-			//cout << "at pos " << to_string (pos ) << "now this number of seqs " << to_string (num_seqs_in_alignment) << endl;		
+
 		        /* have to recalculate sequence weights */
 			std::vector <double> weights_1 (num_seqs_in_alignment, 1.0);
 		        /* raw counts of valid amino acids */
@@ -146,22 +144,13 @@ void addMedianSeqInfo (std::vector<Chain*> alignment_string, Chain* query, std::
 			std::vector<std::vector<double>>
                                          matrix_noX (query_length,
                                         std::vector <double> (26, 0.0));
-/*			for (int seq_index = 0; seq_index < num_seqs_in_alignment; seq_index++) {
-				cout << "newSIFT seq weight " << to_string (seq_index) << " " << seq_weights[seq_index] << endl;
-				for (int j = 0; j < query_length ; j++) {
-            				cout << chainGetChar(alignment_with_noX_at_pos[seq_index], j);
-        			}
 
-			}
-*/
 			basic_matrix_construction (alignment_with_noX_at_pos, seq_weights, matrix_noX); 
 //			printMatrix (matrix, "tmp_basicmatrix.txt");	
 			double medianSeqInfo = calculateMedianSeqInfo (alignment_with_noX_at_pos, invalidSeq, seq_weights, matrix_noX);
 			medianSeqInfoForPos[it->first] = medianSeqInfo;
-			//cout << it->first << " with median " << std::to_string (medianSeqInfo) << endl;
 		}
 	}
-	//cout << "done with median seq info " << endl;
 }
 
 double  calculateMedianSeqInfo (std::vector<Chain*>& alignment_strings, std::unordered_map <int, int> invalidSeq, std::vector <double> seq_weights, std::vector<std::vector<double>> matrix) {
@@ -205,34 +194,10 @@ double  calculateMedianSeqInfo (std::vector<Chain*>& alignment_strings, std::uno
 			tmp = matrix[pos_index][idx]/total_weight;
 			if (tmp > 0.0 && valid_amino_acid (aa)) {
 				r += tmp * log (tmp);
-			//cout << "newSIFT: freq " << to_string (aa) << " " << to_string (pos_index) << " weight " << to_string (matrix[pos_index][idx]) << " tmp " << to_string(tmp) << " total " << to_string(total_weight) << endl;
 			}
 		}
 		r = r / log (2.0);
-		
-/*for (int seq_index = 0; seq_index < (int) alignment_strings.size(); seq_index++) {
-			if (invalidSeq.find(seq_index) == invalidSeq.end()) {
-				c = chainGetChar(alignment_strings[seq_index], pos_index);
-				if (valid_amino_acid (c)) {
-//					valid_aa++;
-//					amino_acid_nums[(int) c - 'A']++;
-					valid_aa += seq_weights[seq_index]; 
-					amino_acid_nums[(int) c - 'A'] += seq_weights[seq_index];
-//					cout << "adding seq weight " << to_string (seq_weights[seq_index]) << endl; 
-				}
-			}
-		} */ /* end seq_index */
-/*		for (int k = 0; k < amino_acid_num; ++k) {
-			if (amino_acid_nums[k] != 0) {
-				float f  = amino_acid_nums[k] / (float) valid_aa;
-				cout << "newSIFT: freq " << to_string (k) << " " << to_string (pos_index) << " weight " << amino_acid_nums[k] << " freq " << f << " total " << valid_aa << endl; 
-				pos_freq[pos_index] += f * log2f (f); 
-			}
-		}
-*/
-/*		pos_freq[pos_index] += kLog_2_20; */
 		pos_freq[pos_index] = r + kLog_2_20;;
-//	      cout << "newSIFT: pos " << std::to_string (pos_index)  << " string " << std::to_string (pos_freq[pos_index]) << endl; 
 	} /* end pos_index */
 	median = getMedian(pos_freq, query_len);
 
@@ -296,7 +261,6 @@ string print_double (double num, int precision)
 }
 
 void printSubstFile (const std::list <std::string> substList,std::unordered_map <string, double> medianSeqInfoForPos,const  std::vector<std::vector<double>> SIFTscores,const  std::vector <double> aas_stored,const  int total_seq,  Chain* query,const  std::string outfile) {
-//	cout.flush() << "in printSubstFile2" << endl;
 	std::list<std::string>::const_iterator iterator;
 	std::regex regexSubst ("^([A-Z])([0-9]+)([A-Z])");  /*, std::regex_constants::basic); */
         std::smatch m;
@@ -304,12 +268,10 @@ void printSubstFile (const std::list <std::string> substList,std::unordered_map 
 	outfp.open (outfile, ios::out);
 	int query_length = SIFTscores.size();
 
-//	cout.flush() << "in printSubstFile " << endl;
-	
 	for (int pos = 0; pos < query_length; pos++) {
 		 char ref_aa = chainGetChar (query, pos);
 		 int ref_aa_index = (int) ref_aa - (int) 'A';
-	//cout << "in ref del " << to_string (pos) <<  endl;
+
 		 if (SIFTscores[pos][ref_aa_index] < TOLERANCE_PROB_THRESHOLD) {
 			auto search = medianSeqInfoForPos.find (to_string(pos));
 			double median = search->second; 
@@ -322,7 +284,6 @@ void printSubstFile (const std::list <std::string> substList,std::unordered_map 
 
 	for (iterator = substList.begin(); iterator != substList.end(); ++iterator) 	{
 		 string substLine = *iterator;
-//		cout << "reading substLine " << substLine << endl;
 		 stringstream ss(stringstream::in|stringstream::out);
 		ss << substLine;
 		string cleanSubst;
@@ -357,7 +318,6 @@ void printSubstFile (const std::list <std::string> substList,std::unordered_map 
  
 		
 		}
-//	std::cout << *iterator << std::endl;
 	}	
 	outfp.close();
 }
@@ -389,9 +349,7 @@ void calcSIFTScores (std::vector <Chain *> alignment_string, Chain* query, std::
 	/* raw counts of valid amino acids */
         std::vector<double> aas_stored_at_each_pos (query_length);
         createMatrix (alignment_string, query, weights_1, raw_count_matrix, aas_stored_at_each_pos);
-//        printMatrix (matrix, "tmp.txt");
 
-        //cout << "about to enter calcSeqWeights " << endl;
         std::vector <double> seq_weights (num_seqs_in_alignment);
 
 	/* calcSeqWeights is the only function where all sequences 
@@ -406,15 +364,12 @@ void calcSIFTScores (std::vector <Chain *> alignment_string, Chain* query, std::
         std::vector <double> tot_weights_each_pos (query_length);
 
 	createMatrix (alignment_string, query, seq_weights, seq_weighted_matrix, tot_weights_each_pos);
-//	printMatrix (seq_weighted_matrix, "tmpweighted.txt");
 
-//	cout << "find max aa in matrix " << endl;
 	find_max_aa_in_matrix (seq_weighted_matrix, max_aa_array); 
 
-//	cout << "calc Epsilon " << endl;
 	calcEpsilon (seq_weighted_matrix, max_aa_array, number_of_diff_aas, epsilon ); 
+
 	/* pseudo_diri */
-//	cout << "scale matrix to max aa " << endl;
 	std::vector<std::vector<double>> diric_matrix (query_length,
                 std::vector <double> (26, 0.0));
 	calcDiri (seq_weighted_matrix, diric_matrix);
@@ -424,16 +379,13 @@ void calcSIFTScores (std::vector <Chain *> alignment_string, Chain* query, std::
 		for (char aa = 'A'; aa <= 'Z'; aa++) {
                         int aa_index = (int) aa - (int) 'A';
 			SIFTscores[pos][aa_index] = seq_weighted_matrix[pos][aa_index] + epsilon[pos] * diric_matrix[pos][aa_index];
-//			cout << "newpos " << to_string (pos) << " aa " << aa << "colcont " << to_string (seq_weighted_matrix[pos][aa_index]) << " epsilon " << to_string (epsilon[pos]) << " colreg " << to_string (diric_matrix[pos][aa_index]) << endl;
 			SIFTscores[pos][aa_index] /= (tot_weights_each_pos[pos] + epsilon[pos]);	
 		}
-//		cout << "tot_weights_each_pos " << to_string (tot_weights_each_pos[pos]) << " epsilon " << epsilon[pos] << endl;
 	}	
 	/* have to find max aa again because it'schanged with newly added weights */
 	find_max_aa_in_matrix (SIFTscores, max_aa_array);
 	scale_matrix_to_max_aa (SIFTscores, max_aa_array);
 	printMatrix (SIFTscores, "siftscores_matrix.txt");	
-//	cout << "done " << endl;
 	
 }
 
@@ -441,7 +393,6 @@ void calcSIFTScores (std::vector <Chain *> alignment_string, Chain* query, std::
 void calcDiri ( std::vector<std::vector <double>> & count_matrix, std::vector<std::vector<double>> & diric_matrix) {
 	int query_length = count_matrix.size();
 	for (int pos = 0; pos < query_length; pos++) {
-//		cout << "pos for diri " << to_string (pos) << endl;
 		add_diric_values (count_matrix[pos], diric_matrix[pos]);
 	}
 }
@@ -459,7 +410,6 @@ double add_logs (double logx, double logy)
 void add_diric_values (std::vector <double> count_col, std::vector <double>& diric_col) {
 	double tmp;
 	int diri_comp_num = (int) (sizeof (diri_altot)/sizeof (diri_altot[0]));
-//	cout << "number of components " << to_string (diri_comp_num) << endl;
 	std::vector <double>  probn (diri_comp_num, 0.0);
 	std::vector <double> probj (diri_comp_num,0.0);
 
@@ -480,7 +430,6 @@ void add_diric_values (std::vector <double> count_col, std::vector <double>& dir
 				tmp -= lgamma (count_col[aa_index] + 1.0);
 				tmp -= lgamma (diri_alpha[j][aa_index]);
 				probn[j] += tmp;
-//				cout << " aa " << aa << "count " << count_col[aa_index] << " tmp " << to_string (tmp) << "comp " << to_string(j) << " probn " << to_string (probn[j]) << endl; 
 			} /* end if greater than 0 */
 		} /* end all amino acids */
 	} /* end for all Diri components */ 	
@@ -492,12 +441,10 @@ void add_diric_values (std::vector <double> count_col, std::vector <double>& dir
 		double tmp = log (diri_q[j]) + probn[j];
 		denom = add_logs (denom, tmp);
 	}
-//	cout << "4gdiri denom " << denom << endl;
 
 	/*   compute equation (3), Prob(j|n)  */
 	for (int j = 0; j < diri_comp_num; j++) {
 		probj[j] = log (diri_q[j]) + probn[j] - denom;
-//		cout << "4gdiri j " << to_string (j) << " probn[j] " << to_string (probn[j]) << " probj[j] " << to_string (probj[j]) << endl;
 	}
 
 	double totreg =0.0;
@@ -511,7 +458,6 @@ void add_diric_values (std::vector <double> count_col, std::vector <double>& dir
 			totreg += diric_col[aa_index];
 		} /* end valid amino acid */
 	}
-//	cout << "4gdiri total prob " << totreg << endl;	
 	/* now normalize */
 	for (char aa= 'A'; aa <= 'Z'; aa++) {
 		int aa_index = (int) aa - (int) 'A';
@@ -542,7 +488,6 @@ void calcSeqWeights (const std::vector <Chain *> alignment_string, std::vector<s
 				number_of_diff_aas[pos] += 1.0f;
 			}
 		}
-//		cout << " pos " << to_string (pos) << " " << to_string (number_of_diff_aas[pos]) << endl;  
 	}
 
 
@@ -555,135 +500,75 @@ void calcSeqWeights (const std::vector <Chain *> alignment_string, std::vector<s
 			int aa_index = (int) aa - (int) 'A';
                         if (valid_amino_acid (aa) &&  matrix[pos][aa_index] > 0.0) {
 				double tmp = number_of_diff_aas[pos] * matrix[pos][aa_index]; 
-			/*	cout << "tmp " << to_string (tmp) << " diff " 
-			<< to_string (number_of_diff_aas[pos]) << " ," <<
-			to_string (matrix[aa_index][pos]) << endl; */
 				seq_weights[seq_index] += 1.0/tmp;
 			}
 		}
-//		cout << "seq weight " << to_string (seq_index) << " : " << to_string (seq_weights[seq_index]) << endl;
 		tot += seq_weights[seq_index];
 	} 
 
-//	 cout << " total weight " << to_string (tot)  << endl;
 
 	/* normalize so weights sum up to the number of sequences */	
 	double new_tot_weight = 0.0;
 	for (uint32_t seq_index = 0; seq_index<alignment_string.size(); seq_index++)
 {
 		seq_weights[seq_index]  = seq_weights[seq_index] / tot * alignment_string.size()  ;
-//		cout << "seq weight " << to_string (seq_index) << " : " << to_string (seq_weights[seq_index]) << endl;
 		new_tot_weight += seq_weights[seq_index];
 	}
-//	cout << "new total weight " << to_string (new_tot_weight)  << endl;
 
-	/* print sequence weights for checking */
-/*	for (uint32_t seq_index = 0; seq_index<alignment_string.size(); seq_index++) {
-		cout << "seq index " << std::to_string (seq_index) << " weight " << std::to_string (seq_weights[seq_index]) << endl;
-	}
-*/
 }
 
 void remove_seqs_percent_identical_to_query(Chain *queries, std::vector<Chain *> &alignment_string, double seq_identity)
-
 {
-
     double identity;
-
     double seqTotal;
-
-//    cout << "remove_seqs iest entered here\n";
-
     int lenOfQuery = chainGetLength(queries);
-
     int currPos = 0;
 
-
-
     /*iterate through elements in vector of chains*/
-
     while (currPos < int(alignment_string.size())){
 
         identity = 0;
-
         seqTotal = 0;
-
         int lenOfAlign = chainGetLength(alignment_string[currPos]);
 
-
-
         /*see if alignment_string is indeed made to match query seq length*/
-
         if (lenOfQuery == lenOfAlign){
-
             for (int m = 0; m < lenOfAlign; m++){
 
                 /*compare each char of query to alignment_string char at same position in chain*/
-
                 char qChar = chainGetChar(queries, m);
                 char aChar = chainGetChar(alignment_string[currPos], m);
 
 		if (aChar != 'X'){
 
                     if (valid_amino_acid(aChar) && valid_amino_acid(qChar)){
-
                         seqTotal++;
 
-
-
                         if (qChar == aChar){
-
                             identity++;
 
                         }
-
                     }
-                }/*else{
-
-                    cout << "Invalid amino acid found!" << endl;
-
-                  exit(1); 
-
                 }
-		*/
             }
 
         }else{
 
             cout << "Length does not match!" << endl;
-
             exit(1);
 
         }
-
-
-
         double perc_similar = (identity / seqTotal) * 100;
 
-
-
         /*Read curr element, delete if beyond threshold, else move to next pos*/
-	/// BUG, (int) round <value>
         if ( perc_similar >= seq_identity ){
-
             alignment_string.erase(alignment_string.begin() + currPos);
 
         }else{
-
             currPos++;
 
         }
-
     }
-
-        /*iterates vector and prints out name*/
-
-/*    for (std::vector<Chain *>::const_iterator i = alignment_string.begin(); i != alignment_string.end(); ++i){
-
-        cout << "AFTER_NAME: " << chainGetName(*i) << endl;
-
-    }
-*/
 }
 
 void printSeqNames (std::vector <Chain *> alignment_string ) {
@@ -707,7 +592,6 @@ void createMatrix (const std::vector <Chain *> alignment_string,
 		for (int pos = 0; pos < query_len; pos++) {
 			char aa = chainGetChar (alignment_string[seq_index], pos);
 			if (valid_amino_acid (aa)) {
-		/*		std::cout << "pos " << std::to_string(pos) << "sequence " << std::to_string (seq_index) << " aa" << std::to_string(aa) << std::endl; */
 				int aa_index = (int) aa - (int) 'A'; 
 				matrix[pos][aa_index] += seq_weights[seq_index] ; /*seq_weight[seq_index];*/ 
 				tot_pos_weight[pos] += seq_weights[seq_index];
@@ -758,21 +642,13 @@ void basic_matrix_construction (const std::vector <Chain*> alignment_string, con
 	double part_E = aa_frequency[aa_to_idx('E')] / ( aa_frequency[aa_to_idx('E')] + aa_frequency[aa_to_idx('Q')] );
 	double part_Q = aa_frequency[aa_to_idx('Q')] / ( aa_frequency[aa_to_idx('E')] + aa_frequency[aa_to_idx('Q')] );
 
-
 	int proteinLen = chainGetLength(alignment_string[0]);	
 	int aaLen =  matrix[0].size();
-	/*int aaLen = 28; // MATRIX_AA_WIDTH in old code
-	matrix.resize(aaLen);
-*/
+
 	// loop every position in chain length
 	for (int pos = 0; pos < proteinLen; pos++){
 		double total = 0.0;
 
-                // expand by 1 and zero out col j
-/*                for (int i = 0; i < aaLen; i++){
-	                matrix[i].push_back(0.0);
-                }
-*/
 		// read pos in each chain
 		for (int seq = 0; seq < int(alignment_string.size()); seq++){
 			char currChar = chainGetChar(alignment_string[seq],pos);
@@ -829,41 +705,21 @@ void basic_matrix_construction (const std::vector <Chain*> alignment_string, con
 	        }
 
 		// lastly, tali B and Z rows
-
 		matrix[pos][aa_to_idx('B')] = (matrix[pos][aa_to_idx('D')] * part_D) + (matrix[pos][aa_to_idx('N')] * part_N);
-
                 matrix[pos][aa_to_idx('Z')] = (matrix[pos][aa_to_idx('E')] * part_E) + (matrix[pos][aa_to_idx('Q')] * part_Q);
-
 	}
 }
 
 void seqs_without_X  (const std:: vector <Chain*>  alignment_string, int pos, std::vector <Chain*>& out_alignment){
-
-
         char posChar;
 
         /*iterate vector of aligment and check pos*/
-
         for( int n = 0; n < int(alignment_string.size()); n++){
-                /*cout << "NAME: " << chainGetName(alignment_string[n]) << endl;
-                for (int m=0; m < chainGetLength(alignment_string[n]); m++){
-                        cout << chainGetChar(alignment_string[n], m);
-                }
-                cout << endl;*/
-
                 posChar = chainGetChar(alignment_string[n], pos);
-
-                /*cout << posChar << " :: ";*/
 
                 /*check if char in pos is valid, and push it into new vector*/
                 if (valid_amino_acid(posChar)){
                         out_alignment.push_back(alignment_string[n]);
-                        /*cout << "YAS" << endl;*/
-                }/*else{
-
-                        cout << "NO" << endl;
-
-                }*/
+                }
         } 
-
 }
