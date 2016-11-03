@@ -14,5 +14,9 @@
 
 void siftPredictions(std::vector<std::vector<Chain*>>& alignment_strings,
     Chain** queries, int32_t queries_length, const std::string& subst_path,
-    int32_t sequence_identity, const std::string& out_path);
+    int32_t sequence_identity, const std::string& out_path, int32_t num_threads);
 /* this function changes alignment_strings by adding query sequence to it */
+
+void processQuery(int32_t sequence_identity, std::vector<Chain*>& alignment_string, Chain* query,int32_t queries_length, const std::string& subst_path, const std::string& out_path, int32_t idx);
+
+void waitForChild();

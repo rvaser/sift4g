@@ -1,6 +1,5 @@
 #CP = g++-4.8
 CP = g++-4.9
-LD = nvcc
 
 NAME = sift4g
 

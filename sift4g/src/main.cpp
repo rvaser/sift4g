@@ -229,7 +229,7 @@ int main(int argc, char* argv[]) {
 
     siftPredictions (alignment_strings, queries, 
 				queries_length, subst_path,
-			        sequence_identity, out_path);
+			        sequence_identity, out_path, num_threads);
     deleteSelectedAlignments(alignment_strings);
 /*    The queries have been combined with alignments in siftPredictions
 	deleteFastaChains(queries, queries_length);
