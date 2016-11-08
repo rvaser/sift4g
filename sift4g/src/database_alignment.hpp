@@ -2,6 +2,8 @@
  * @file database_alignment.hpp
  *
  * @brief Database alignment header file
+ *
+ * @author: rvaser
  */
 
 #pragma once

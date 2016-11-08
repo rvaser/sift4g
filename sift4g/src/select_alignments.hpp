@@ -2,6 +2,8 @@
  * @file select_alignments.hpp
  *
  * @brief Alignment selection header file
+ *
+ * @author: rvaser
  */
 
 #pragma once

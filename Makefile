@@ -1,5 +1,5 @@
 CORE = sift4g
-DEPS = vendor/swsharp vendor/sift
+DEPS = vendor/swsharp
 
 all: TARGETS=all
 cpu: TARGETS=cpu

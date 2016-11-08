@@ -2,6 +2,8 @@
  * @file hash.cpp
  *
  * @brief Hash class source file
+ *
+ * @author: rvaser
  */
 
 #include <assert.h>

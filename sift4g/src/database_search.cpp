@@ -2,6 +2,8 @@
  * @file database_search.cpp
  *
  * @brief Database search source file
+ *
+ * @author: rvaser
  */
 
 #include <assert.h>
@@ -29,9 +31,9 @@ public:
     int32_t id;
 };
 
-class ThreadData {
+class ThreadSearchData {
 public:
-    ThreadData(std::shared_ptr<Hash> _query_hash, uint32_t _queries_length,
+    ThreadSearchData(std::shared_ptr<Hash> _query_hash, uint32_t _queries_length,
         std::vector<float>& _min_scores, Chain** _database,
         uint32_t _database_begin, uint32_t _database_end,
         uint32_t _kmer_length, uint32_t _max_candidates,
@@ -107,7 +109,7 @@ uint64_t searchDatabase(std::vector<std::vector<uint32_t>>& dst,
 
         for (uint32_t i = 0; i < num_threads; ++i) {
 
-            auto thread_data = new ThreadData(query_hash, queries_length, min_scores,
+            auto thread_data = new ThreadSearchData(query_hash, queries_length, min_scores,
                 database, database_splits[i], database_splits[i + 1], kmer_length,
                 max_candidates, candidates[i], i == num_threads - 1, part,
                 part_size);
@@ -180,7 +182,7 @@ uint64_t searchDatabase(std::vector<std::vector<uint32_t>>& dst,
 
 void* threadSearchDatabase(void* params) {
 
-    auto thread_data = (ThreadData*) params;
+    auto thread_data = (ThreadSearchData*) params;
 
     thread_data->candidates.resize(thread_data->queries_length);
 

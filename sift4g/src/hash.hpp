@@ -2,6 +2,8 @@
  * @file hash.hpp
  *
  * @brief Hash class header file
+ *
+ * @author: rvaser
  */
 
 #pragma once

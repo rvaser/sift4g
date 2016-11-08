@@ -2,6 +2,8 @@
  * @file select_alignments.cpp
  *
  * @brief Alignment selection source file
+ *
+ * @author: rvaser
  */
 
 #include <math.h>
@@ -11,13 +13,12 @@
 #include <algorithm>
 
 #include "utils.hpp"
+#include "constants.hpp"
 #include "select_alignments.hpp"
 
-constexpr double kLog_2_20 = 4.321928095;
-
-class ThreadData {
+class ThreadSelectionData {
 public:
-    ThreadData(std::vector<Chain*>& _dst, DbAlignment** _alignments, int _alignments_length,
+    ThreadSelectionData(std::vector<Chain*>& _dst, DbAlignment** _alignments, int _alignments_length,
         Chain* _query, float _threshold):
             dst(_dst), alignments(_alignments), alignments_length(_alignments_length),
             query(_query), threshold(_threshold) {
@@ -29,7 +30,6 @@ public:
     Chain* query;
     float threshold;
 };
-float getMedian(float* a, int len);
 
 void aligmentStr(char** query_str, char** target_str, Alignment* alignment, const char gap_item);
 
@@ -55,8 +55,8 @@ void selectAlignments(std::vector<std::vector<Chain*>>& dst, DbAlignment*** alig
 
     for (int32_t i = 0; i < queries_length; ++i) {
 
-        auto thread_data = new ThreadData(dst[i], alignments[i], alignments_lengths[i],
-            queries[i], threshold);
+        auto thread_data = new ThreadSelectionData(dst[i], alignments[i],
+            alignments_lengths[i], queries[i], threshold);
 
         thread_tasks[i] = threadPoolSubmit(threadSelectAlignments, (void*) thread_data);
     }
@@ -120,17 +120,6 @@ void deleteSelectedAlignments(std::vector<std::vector<Chain*>>& alignment_string
 
 /*****************************************************************************
 *****************************************************************************/
-
-float getMedian(float* a, int len) {
-
-	std::sort(&a[0], &a[len - 1]);
-
-	if (len % 2 == 0) {
-        return (a[len / 2 - 1] + a[len / 2]) / 2.0;
-    } else {
-        return a[len / 2];
-    }
-}
 
 void alignmentsExtract(std::vector<Chain*>& dst, Chain* query, DbAlignment** alignments,
     int alignments_length) {
@@ -309,7 +298,7 @@ void aligmentStr(char** query_str, char** target_str, Alignment* alignment, cons
 
 void* threadSelectAlignments(void* params) {
 
-    auto thread_data = (ThreadData*) params;
+    auto thread_data = (ThreadSelectionData*) params;
 
     thread_data->dst.clear();
 

@@ -2,6 +2,8 @@
  * @file utils.hpp
  *
  * @brief Utils header file
+ *
+ * @author: rvaser
  */
 
 #pragma once

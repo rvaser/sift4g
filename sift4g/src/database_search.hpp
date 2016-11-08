@@ -2,6 +2,8 @@
  * @file database_search.hpp
  *
  * @brief Database search header file
+ *
+ * @author: rvaser
  */
 
 #pragma once

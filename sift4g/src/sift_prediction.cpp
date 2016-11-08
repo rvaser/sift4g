@@ -2,6 +2,8 @@
  * @file sift_prediction.cpp
  *
  * @brief SIFT predictions source file
+ *
+ * @author: rvaser, pauline-ng, angsm
  */
 
 #include <stdio.h>
@@ -9,98 +11,122 @@
 #include <assert.h>
 
 #include "utils.hpp"
+#include "sift_scores.hpp"
 #include "sift_prediction.hpp"
-
-// BLIMPS needs that...
-#define EXTERN
-
-extern "C" {
-    #include "sift/info_on_seqs_pid.h"
-    #include "sift/Alignment.h"
-}
 
 constexpr uint32_t kMaxSequences = 400;
 
-// declared extern in sift...
-FILE* errorfp;
-
-Sequence* chainPtrToSequencePtr(Chain* chain_ptr, int32_t id) {
-
-    Sequence* sequence_ptr = (Sequence*) malloc(sizeof(Sequence));
-
-    std::string chain_name = std::to_string(id);
-    strcpy(sequence_ptr->name, chain_name.c_str());
-    sequence_ptr->position = 0;
-
-    sequence_ptr->length = chainGetLength(chain_ptr);
-    sequence_ptr->max_length = chainGetLength(chain_ptr);
-    sequence_ptr->type = AA_SEQ;
-    sequence_ptr->weight = 0.0;
-
-    sequence_ptr->undefined = 0;
-    sequence_ptr->undefined_dbl = 0.0;
-    sequence_ptr->undefined_ptr = NULL;
-    sequence_ptr->sequence = (Residue*) malloc(sequence_ptr->max_length * sizeof(Residue));
-
-    for (int32_t i = 0; i < chainGetLength(chain_ptr); ++i) {
-        int32_t stemp = aa_atob[(int) chainGetChar(chain_ptr, i)];
-        assert(stemp > -1 && stemp < AAID_MAX + 1 && "error while transforming Chain to Sequence");
-        sequence_ptr->sequence[i] = (Residue) stemp;
+class ThreadPredictionData {
+public:
+    ThreadPredictionData(std::vector<Chain*>& _alignment_strings, Chain* _query, const std::string& _subst_path,
+        int32_t _sequence_identity, const std::string& _out_path)
+            : alignment_strings(_alignment_strings), query(_query), sequence_identity(_sequence_identity),
+            subst_path(_subst_path), out_path(_out_path) {
     }
 
-    return sequence_ptr;
-}
+    std::vector<Chain*>& alignment_strings;
+    Chain* query;
+    int32_t sequence_identity;
+    std::string subst_path;
+    std::string out_path;
+};
 
-void siftPredictions(const std::vector<std::vector<Chain*>>& alignment_strings,
+void* threadSiftPredictions(void* params);
+
+/*****************************************************************************
+*****************************************************************************/
+
+void siftPredictions(std::vector<std::vector<Chain*>>& alignment_strings,
     Chain** queries, int32_t queries_length, const std::string& subst_path,
     int32_t sequence_identity, const std::string& out_path) {
 
     fprintf(stderr, "** Generating SIFT predictions with sequence identity: %.2f%% **\n", (float) sequence_identity);
 
-    std::string subst_extension = ".subst";
-    std::string out_extension = ".SIFTprediction";
-
-    char* error_file_name = createFileName("sift", out_path, ".err");
-    errorfp = fopen(error_file_name, "w");
+    std::vector<ThreadPoolTask*> thread_tasks(queries_length, nullptr);
 
     for (int32_t i = 0; i < queries_length; ++i) {
 
-        queryLog(i + 1, queries_length);
+        auto thread_data = new ThreadPredictionData(alignment_strings[i], queries[i],
+            subst_path, sequence_identity, out_path);
 
-        char* subst_file_name = createFileName(chainGetName(queries[i]), subst_path, subst_extension);
-        FILE* subst_fp = isExtantPath(subst_file_name) ? fopen(subst_file_name, "r") : nullptr;
-
-        char* out_file_name = createFileName(chainGetName(queries[i]), out_path, out_extension);
-        FILE* out_fp = fopen(out_file_name, "w");
-
-        int32_t num_sequences = (kMaxSequences - 1) < alignment_strings[i].size() ? (kMaxSequences - 1) : alignment_strings[i].size();
-
-        Sequence** sequences = new Sequence*[num_sequences + 1];
-        sequences[0] = chainPtrToSequencePtr(queries[i], 0);
-
-        for (int32_t j = 0; j < num_sequences; ++j) {
-            sequences[j + 1] = chainPtrToSequencePtr(alignment_strings[i][j], j + 1);
-        }
-
-        generate_predictions(sequences, num_sequences + 1, subst_fp, sequence_identity, out_fp);
-
-        for (int32_t j = 0; j < num_sequences + 1; ++j) {
-            if (sequences[j] != NULL) {
-                free(sequences[j]->sequence);
-                free(sequences[j]);
-            }
-        }
-        delete[] sequences;
-
-        fclose(out_fp);
-        delete[] out_file_name;
-
-        if (subst_fp != nullptr) fclose(subst_fp);
-        delete[] subst_file_name;
+        thread_tasks[i] = threadPoolSubmit(threadSiftPredictions, (void*) thread_data);
     }
 
-    fclose(errorfp);
-    delete[] error_file_name;
+    for (int32_t i = 0; i < queries_length; ++i) {
+        threadPoolTaskWait(thread_tasks[i]);
+        threadPoolTaskDelete(thread_tasks[i]);
+        queryLog(i + 1, queries_length);
+    }
 
     fprintf(stderr, "\n\n");
+}
+
+/*****************************************************************************
+*****************************************************************************/
+
+void* threadSiftPredictions(void* params) {
+
+    auto thread_data = (ThreadPredictionData*) params;
+
+	std::string subst_extension = ".subst";
+	std::string out_extension = ".SIFTprediction";
+
+	// only keep first 399 hits, erase more distant ones
+    if (thread_data->alignment_strings.size() > kMaxSequences - 1) {
+        for (uint32_t j = kMaxSequences - 1; j < thread_data->alignment_strings.size(); ++j) {
+            chainDelete(thread_data->alignment_strings[j]);
+        }
+        thread_data->alignment_strings.resize(kMaxSequences - 1);
+    }
+
+	int query_length = chainGetLength(thread_data->query);
+	remove_seqs_percent_identical_to_query(thread_data->query,
+        thread_data->alignment_strings, thread_data->sequence_identity);
+
+	// add query sequence to the beginning of the alignment
+    thread_data->alignment_strings.insert(thread_data->alignment_strings.begin(),
+        chainCreateView(thread_data->query, 0, query_length - 1, 0));
+    int total_seq = thread_data->alignment_strings.size();
+
+	std::vector<std::vector<double>> matrix(query_length, std::vector<double>(26, 0.0));
+    std::vector<std::vector<double>> SIFTscores(query_length, std::vector<double>(26, 0.0));
+
+    std::vector<double> weights_1(thread_data->alignment_strings.size(), 1.0);
+    std::vector<double> aas_stored(query_length, 0.0);
+
+    createMatrix(thread_data->alignment_strings, thread_data->query, weights_1, matrix, aas_stored);
+
+    calcSIFTScores(thread_data->alignment_strings, thread_data->query, matrix, SIFTscores);
+
+    int num_seqs_in_alignment = thread_data->alignment_strings.size();
+    std::vector <double> seq_weights (num_seqs_in_alignment);
+    std::vector <double> number_of_diff_aas (query_length);
+    calcSeqWeights(thread_data->alignment_strings, matrix, aas_stored, seq_weights, number_of_diff_aas);
+
+    char* subst_file_name = createFileName(chainGetName(thread_data->query),
+        thread_data->subst_path, subst_extension);
+    char* out_file_name = createFileName(chainGetName(thread_data->query),
+        thread_data->out_path, out_extension);
+
+    if (isExtantPath(subst_file_name)) {
+        std::list <std::string> subst_list;
+        std::unordered_map <std::string, double> medianSeqInfoForPos;
+
+        readSubstFile(subst_file_name, subst_list);
+        hashPredictedPos(subst_list, medianSeqInfoForPos);
+        addPosWithDelRef(thread_data->query, SIFTscores, medianSeqInfoForPos);
+        addMedianSeqInfo(thread_data->alignment_strings, thread_data->query,
+            matrix, medianSeqInfoForPos);
+        printSubstFile(subst_list, medianSeqInfoForPos, SIFTscores, aas_stored,
+            total_seq, thread_data->query, out_file_name);
+    } else {
+        printMatrix(SIFTscores, out_file_name);
+    }
+
+    delete[] out_file_name;
+    delete[] subst_file_name;
+
+    delete thread_data;
+
+    return nullptr;
 }

@@ -2,6 +2,8 @@
  * @file utils.cpp
  *
  * @brief Utils source file
+ *
+ * @author: rvaser
  */
 
 #include <sys/types.h>
@@ -11,7 +13,7 @@
 
 #include "utils.hpp"
 
-constexpr uint32_t kBufferSize = 2048;
+constexpr uint32_t kBufferSize = 4096;
 
 bool isExtantPath(const char* path) {
     struct stat buffer;

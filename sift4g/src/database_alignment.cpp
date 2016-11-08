@@ -2,6 +2,8 @@
  * @file database_alignment.cpp
  *
  * @brief Database alignment source file
+ *
+ * @author: rvaser
  */
 
 #include <assert.h>
