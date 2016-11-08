@@ -14,6 +14,7 @@ To build SIFT4G run the following commands from your terminal:
 
     git clone --recursive https://github.com/rvaser/sift4g.git sift4g
     cd sift4g/
+	git checkout removenon-GPLcode
 	make clean
     make cpu
 
