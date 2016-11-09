@@ -590,12 +590,42 @@ void printMatrix(std::vector<std::vector<double>>& matrix, std::string filename)
 	out_file.close();
 }
 
-int aa_to_idx (char character){
+void printMatrixOriginalFormat(std::vector<std::vector<double>>& matrix, std::string filename) {
+
+	auto fp = fopen(filename.c_str(), "w");
+
+	int query_length = matrix.size();
+	int aas = matrix[0].size();
+
+	// print out header
+	fprintf(fp, "A");
+	for (int aa_index = 1; aa_index < aas; aa_index++) {
+		// ignore B J O U X Z
+		if (aa_index != 1 && aa_index != 9 && aa_index != 14 && aa_index != 20 && aa_index != 23 && aa_index != 25) {
+			fprintf(fp, " %c", aa_index + 'A');
+		}
+	}
+	fprintf(fp, "\n");
+
+	for (int pos = 0; pos < query_length; pos++) {
+		fprintf(fp, "%6.4f", matrix[pos][0]);
+		for (int aa_index = 1; aa_index < aas; aa_index++) {
+			if (aa_index != 1 && aa_index != 9 && aa_index != 14 && aa_index != 20 && aa_index != 23 && aa_index != 25) {
+				fprintf(fp, " %6.4f", matrix[pos][aa_index]);
+			}
+		}
+		fprintf(fp, "\n");
+	}
+
+	fclose(fp);
+}
+
+int aa_to_idx(char character){
 	// A = 0 and etc
 	return int(character) - int('A');
 }
 
-void basic_matrix_construction (const std::vector<Chain*>& alignment_string, const std::vector<double>& seq_weights,
+void basic_matrix_construction(const std::vector<Chain*>& alignment_string, const std::vector<double>& seq_weights,
     std::vector<std::vector<double>>& matrix) {
 
 	// do partial calculation on aa that can be represented by B or Z as well

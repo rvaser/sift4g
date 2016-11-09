@@ -55,6 +55,8 @@ void addMedianSeqInfo(std::vector<Chain*>& alignment_string, Chain* query,
 void printSeqNames(std::vector<Chain*>& alignment_string);
 
 void check_refaa_against_query(char ref_aa, int aa_pos, Chain* query, std::ofstream& outfp);
+
+void printMatrixOriginalFormat(std::vector<std::vector<double>>& matrix, std::string filename);
 void printMatrix(std::vector<std::vector<double>>& matrix, std::string filename);
 
 void calcDiri(std::vector<std::vector<double>>& weighted_matrix, std::vector<std::vector<double>>& diri_matrix);

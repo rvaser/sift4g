@@ -120,7 +120,8 @@ void* threadSiftPredictions(void* params) {
         printSubstFile(subst_list, medianSeqInfoForPos, SIFTscores, aas_stored,
             total_seq, thread_data->query, out_file_name);
     } else {
-        printMatrix(SIFTscores, out_file_name);
+        // printMatrix(SIFTscores, out_file_name);
+        printMatrixOriginalFormat(SIFTscores, out_file_name);
     }
 
     delete[] out_file_name;
