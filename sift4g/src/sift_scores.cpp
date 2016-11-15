@@ -121,6 +121,10 @@ void addMedianSeqInfo(std::vector<Chain*>& alignment_string, Chain* query, std::
             seqs_without_X(alignment_string, pos, alignment_with_noX_at_pos );
 
             int num_seqs_in_alignment = alignment_with_noX_at_pos.size();
+            if (num_seqs_in_alignment == 0) {
+                medianSeqInfoForPos[it->first] = 0.0;
+                continue;
+            }
 
             /* have to recalculate sequence weights */
             std::vector<double> weights_1 (num_seqs_in_alignment, 1.0);
@@ -595,24 +599,25 @@ void printMatrixOriginalFormat(std::vector<std::vector<double>>& matrix, std::st
     int aas = matrix[0].size();
 
     // print out header
-    fprintf(fp, "A");
-    for (int aa_index = 1; aa_index < aas; aa_index++) {
-        // ignore B J O U X Z
-        if (aa_index != 1 && aa_index != 9 && aa_index != 14 && aa_index != 20 && aa_index != 23 && aa_index != 25) {
-            fprintf(fp, " %c", aa_index + 'A');
+    fprintf(fp, "ID   UNK_ID; MATRIX\nAC   UNK_AC\nDE   UNK_DE\nMA   UNK_BL\n");
+    fprintf(fp, " ");
+    for (int aa_index = 0; aa_index < aas; aa_index++) {
+        // ignore J O U
+        if (aa_index != 9 && aa_index != 14 && aa_index != 20) {
+            fprintf(fp, " %c  ", aa_index + 'A');
         }
     }
-    fprintf(fp, "\n");
+    fprintf(fp, " *   -\n");
 
     for (int pos = 0; pos < query_length; pos++) {
-        fprintf(fp, "%6.4f", matrix[pos][0]);
-        for (int aa_index = 1; aa_index < aas; aa_index++) {
-            if (aa_index != 1 && aa_index != 9 && aa_index != 14 && aa_index != 20 && aa_index != 23 && aa_index != 25) {
-                fprintf(fp, " %6.4f", matrix[pos][aa_index]);
+        for (int aa_index = 0; aa_index < aas; aa_index++) {
+            if (aa_index != 9 && aa_index != 14 && aa_index != 20) {
+                fprintf(fp, " %6.4f ", matrix[pos][aa_index]);
             }
         }
-        fprintf(fp, "\n");
+        fprintf(fp, " %6.4f  %6.4f\n", 0.0, 0.0);
     }
+    fprintf(fp, "//\n");
 
     fclose(fp);
 }
