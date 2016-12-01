@@ -18,6 +18,8 @@
 
 void readSubstFile(char* substFilename, std::list<std::string>& substList);
 
+bool checkSubsts(const std::list<std::string>& substList, Chain* query);
+
 void printSubstFile(const std::list<std::string>& substList, std::unordered_map<std::string, double>& medianSeqInfoForPos,
     const std::vector<std::vector<double>>& SIFTscores, const std::vector<double>& aas_stored,
     const int total_seq, Chain* query, const std::string outfile);

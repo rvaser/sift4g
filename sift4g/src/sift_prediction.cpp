@@ -79,16 +79,16 @@ void* threadSiftPredictions(void* params) {
         thread_data->alignment_strings.resize(kMaxSequences - 1);
     }
 
-	int query_length = chainGetLength(thread_data->query);
-	remove_seqs_percent_identical_to_query(thread_data->query,
+    int query_length = chainGetLength(thread_data->query);
+    remove_seqs_percent_identical_to_query(thread_data->query,
         thread_data->alignment_strings, thread_data->sequence_identity);
 
-	// add query sequence to the beginning of the alignment
+    // add query sequence to the beginning of the alignment
     thread_data->alignment_strings.insert(thread_data->alignment_strings.begin(),
         chainCreateView(thread_data->query, 0, query_length - 1, 0));
     int total_seq = thread_data->alignment_strings.size();
 
-	std::vector<std::vector<double>> matrix(query_length, std::vector<double>(26, 0.0));
+    std::vector<std::vector<double>> matrix(query_length, std::vector<double>(26, 0.0));
     std::vector<std::vector<double>> SIFTscores(query_length, std::vector<double>(26, 0.0));
 
     std::vector<double> weights_1(thread_data->alignment_strings.size(), 1.0);
@@ -109,16 +109,18 @@ void* threadSiftPredictions(void* params) {
         thread_data->out_path, out_extension);
 
     if (isExtantPath(subst_file_name)) {
-        std::list <std::string> subst_list;
-        std::unordered_map <std::string, double> medianSeqInfoForPos;
+        std::list<std::string> subst_list;
+        std::unordered_map<std::string, double> medianSeqInfoForPos;
 
         readSubstFile(subst_file_name, subst_list);
-        hashPredictedPos(subst_list, medianSeqInfoForPos);
-        addPosWithDelRef(thread_data->query, SIFTscores, medianSeqInfoForPos);
-        addMedianSeqInfo(thread_data->alignment_strings, thread_data->query,
-            matrix, medianSeqInfoForPos);
-        printSubstFile(subst_list, medianSeqInfoForPos, SIFTscores, aas_stored,
-            total_seq, thread_data->query, out_file_name);
+        if (checkSubsts(subst_list, thread_data->query) == true) {
+            hashPredictedPos(subst_list, medianSeqInfoForPos);
+            addPosWithDelRef(thread_data->query, SIFTscores, medianSeqInfoForPos);
+            addMedianSeqInfo(thread_data->alignment_strings, thread_data->query,
+                matrix, medianSeqInfoForPos);
+            printSubstFile(subst_list, medianSeqInfoForPos, SIFTscores, aas_stored,
+                total_seq, thread_data->query, out_file_name);
+        }
     } else {
         // printMatrix(SIFTscores, out_file_name);
         printMatrixOriginalFormat(SIFTscores, out_file_name);

@@ -200,6 +200,34 @@ double calculateMedianSeqInfo(std::vector<Chain*>& alignment_strings, std::unord
     return median;
 }
 
+bool checkSubsts(const std::list<std::string>& substList, Chain* query) {
+
+    std::regex regexSubst("^([A-Z])([0-9]+)([A-Z])");  /*, std::regex_constants::basic); */
+    std::smatch m;
+
+    bool valid = true;
+    for (std::list<std::string>::const_iterator it = substList.begin(); it != substList.end(); ++it) {
+        if (regex_search(*it, m, regexSubst)) {
+            char ref_aa = std::string(m[1])[0];
+            int pos = stoi(std::string(m[2])) - 1;
+            if (pos >= chainGetLength(query)) {
+                fprintf(stderr, "* skipping prediction for [ %s ]; substitution list has a position out of bounds (line: %s, query length = %d) *\n",
+                    chainGetName(query), (*it).c_str(), chainGetLength(query));
+                valid = false;
+                break;
+            }
+            if (chainGetChar(query, pos) != ref_aa) {
+                fprintf(stderr, "* skipping prediction for [ %s ]; substitution list assumes wrong amino acid at position %d (line: %s, query amino acid = %c) *\n",
+                    chainGetName(query), pos+1, (*it).c_str(), chainGetChar(query, pos));
+                valid = false;
+                break;
+            }
+        }
+    }
+
+    return valid;
+}
+
 void hashPredictedPos(std::list<std::string>& substList, std::unordered_map<std::string, double>& medianSeqInfoForPos) {
 
     std::list<std::string>::const_iterator iterator;
@@ -226,7 +254,7 @@ void addPosWithDelRef(Chain* query, std::vector<std::vector<double>>& SIFTscores
         int ref_aa_index = (int) ref_aa - (int) 'A';
 
         if (SIFTscores[pos][ref_aa_index] < TOLERANCE_PROB_THRESHOLD) {
-            medianSeqInfoForPos[std::to_string(pos)] = -1;
+            medianSeqInfoForPos[std::to_string(pos+1)] = -1; // pos + 1 because the substitution files are 1-based
         }
     }
 }
