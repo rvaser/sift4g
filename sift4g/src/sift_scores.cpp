@@ -297,6 +297,10 @@ void printSubstFile(const std::list<std::string>& substList, std::unordered_map<
 
         if (SIFTscores[pos][ref_aa_index] < TOLERANCE_PROB_THRESHOLD) {
             auto search = medianSeqInfoForPos.find(std::to_string(pos));
+            if (search == medianSeqInfoForPos.end()) {
+                // missing position
+                continue;
+            }
             double median = search->second;
             if (median < ADEQUATE_SEQ_INFO) {
                 outfp << "WARNING! " << ref_aa << std::to_string(pos+1) << " not allowed! score: " <<
