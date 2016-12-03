@@ -68,10 +68,10 @@ void* threadSiftPredictions(void* params) {
 
     auto thread_data = (ThreadPredictionData*) params;
 
-	std::string subst_extension = ".subst";
-	std::string out_extension = ".SIFTprediction";
+    std::string subst_extension = ".subst";
+    std::string out_extension = ".SIFTprediction";
 
-	// only keep first 399 hits, erase more distant ones
+    // only keep first 399 hits, erase more distant ones
     if (thread_data->alignment_strings.size() > kMaxSequences - 1) {
         for (uint32_t j = kMaxSequences - 1; j < thread_data->alignment_strings.size(); ++j) {
             chainDelete(thread_data->alignment_strings[j]);

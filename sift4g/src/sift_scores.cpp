@@ -261,7 +261,7 @@ void addPosWithDelRef(Chain* query, std::vector<std::vector<double>>& SIFTscores
         int ref_aa_index = (int) ref_aa - (int) 'A';
 
         if (SIFTscores[pos][ref_aa_index] < TOLERANCE_PROB_THRESHOLD) {
-            medianSeqInfoForPos[std::to_string(pos+1)] = -1; // pos + 1 because the substitution files are 1-based
+            medianSeqInfoForPos[std::to_string(pos + 1)] = -1; // pos + 1 because the substitution files are 1-based
         }
     }
 }
@@ -296,7 +296,7 @@ void printSubstFile(const std::list<std::string>& substList, std::unordered_map<
         int ref_aa_index = (int) ref_aa - (int) 'A';
 
         if (SIFTscores[pos][ref_aa_index] < TOLERANCE_PROB_THRESHOLD) {
-            auto search = medianSeqInfoForPos.find(std::to_string(pos));
+            auto search = medianSeqInfoForPos.find(std::to_string(pos + 1));
             if (search == medianSeqInfoForPos.end()) {
                 // missing position
                 continue;
