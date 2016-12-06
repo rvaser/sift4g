@@ -191,7 +191,7 @@ int main(int argc, char* argv[]) {
     checkData(queries, queries_length, subst_path);
 
     if (queries_length == 0) {
-        fprintf(stderr, "* EXITING! No valid queries to process. *\n");
+        fprintf(stderr, "** EXITING! No valid queries to process. **\n");
         threadPoolTerminate();
         free(queries);
         free(cards);

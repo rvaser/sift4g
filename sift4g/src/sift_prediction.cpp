@@ -93,6 +93,8 @@ void checkData(Chain** queries, int32_t& queries_length, const std::string& subs
     std::vector<bool> is_valid_chain(queries_length, true);
     bool shrink = false;
 
+    fprintf(stderr, "** Checking query data and substitutions files **\n");
+
     for (int32_t i = 0; i < queries_length; ++i) {
 
         char* subst_file_name = createFileName(chainGetName(queries[i]), subst_path, subst_extension);
@@ -109,6 +111,8 @@ void checkData(Chain** queries, int32_t& queries_length, const std::string& subs
         }
 
         delete[] subst_file_name;
+
+        queryLog(i + 1, queries_length);
     }
 
     if (shrink == true) {
@@ -134,6 +138,8 @@ void checkData(Chain** queries, int32_t& queries_length, const std::string& subs
             queries_length = i;
         }
     }
+
+    fprintf(stderr, "\n\n");
 }
 
 void siftPredictions(std::vector<std::vector<Chain*>>& alignment_strings,
