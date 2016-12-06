@@ -200,41 +200,6 @@ double calculateMedianSeqInfo(std::vector<Chain*>& alignment_strings, std::unord
     return median;
 }
 
-bool checkSubsts(const std::list<std::string>& substList, Chain* query) {
-
-    std::regex regexSubst("^([A-Z])([0-9]+)([A-Z])");  /*, std::regex_constants::basic); */
-    std::smatch m;
-
-    bool valid = true;
-    uint32_t num_valid_lines = 0;
-    for (std::list<std::string>::const_iterator it = substList.begin(); it != substList.end(); ++it) {
-        if (regex_search(*it, m, regexSubst)) {
-            ++num_valid_lines;
-            char ref_aa = std::string(m[1])[0];
-            int pos = stoi(std::string(m[2])) - 1;
-            if (pos >= chainGetLength(query)) {
-                fprintf(stderr, "* skipping prediction for [ %s ]: substitution list has a position out of bounds (line: %s, query length = %d) *\n",
-                    chainGetName(query), (*it).c_str(), chainGetLength(query));
-                valid = false;
-                break;
-            }
-            if (chainGetChar(query, pos) != ref_aa) {
-                fprintf(stderr, "* skipping prediction for [ %s ]: substitution list assumes wrong amino acid at position %d (line: %s, query amino acid = %c) *\n",
-                    chainGetName(query), pos+1, (*it).c_str(), chainGetChar(query, pos));
-                valid = false;
-                break;
-            }
-        }
-    }
-
-    if (num_valid_lines == 0) {
-        fprintf(stderr, "* skipping prediction for [ %s ]: substitution list contains zero valid lines *\n", chainGetName(query));
-        valid = false;
-    }
-
-    return valid;
-}
-
 void hashPredictedPos(std::list<std::string>& substList, std::unordered_map<std::string, double>& medianSeqInfoForPos) {
 
     std::list<std::string>::const_iterator iterator;

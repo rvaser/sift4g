@@ -9,6 +9,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <fstream>
+#include <regex>
+#include <iostream>
 
 #include "utils.hpp"
 #include "sift_scores.hpp"
@@ -35,6 +38,103 @@ void* threadSiftPredictions(void* params);
 
 /*****************************************************************************
 *****************************************************************************/
+
+void checkData(Chain** queries, int32_t& queries_length, const std::string& subst_path) {
+
+    auto read_subst_file = [](std::vector<std::string>& substitutions, const std::string& path) -> void {
+        std::ifstream infile(path);
+        std::string line;
+        if (infile.good()) {
+            while (std::getline(infile, line)) {
+                substitutions.push_back(line);
+            }
+        }
+        infile.close();
+        return;
+    };
+
+    auto check_substitutions = [](const std::vector<std::string>& substitutions, Chain* chain) -> bool {
+
+        bool is_valid = true;
+        std::regex regex_subst("^([A-Z])([0-9]+)([A-Z])");  /*, std::regex_constants::basic); */
+        std::smatch m;
+
+        uint32_t num_valid_lines = 0;
+        for (const auto& it: substitutions) {
+            if (regex_search(it, m, regex_subst)) {
+                ++num_valid_lines;
+                char ref_aa = std::string(m[1])[0];
+                int pos = stoi(std::string(m[2])) - 1;
+                if (pos >= chainGetLength(chain)) {
+                    fprintf(stderr, "* skipping protein [ %s ]: substitution list has a position out of bounds (line: %s, query length = %d) *\n",
+                        chainGetName(chain), it.c_str(), chainGetLength(chain));
+                    is_valid = false;
+                    break;
+                }
+                if (chainGetChar(chain, pos) != ref_aa) {
+                    fprintf(stderr, "* skipping protein [ %s ]: substitution list assumes wrong amino acid at position %d (line: %s, query amino acid = %c) *\n",
+                        chainGetName(chain), pos+1, it.c_str(), chainGetChar(chain, pos));
+                    is_valid = false;
+                    break;
+                }
+            }
+        }
+
+
+        if (num_valid_lines == 0) {
+            fprintf(stderr, "* skipping protein [ %s ]: substitution list contains zero valid lines *\n", chainGetName(chain));
+            is_valid = false;
+        }
+
+        return is_valid;
+    };
+
+    std::string subst_extension = ".subst";
+    std::vector<bool> is_valid_chain(queries_length, true);
+    bool shrink = false;
+
+    for (int32_t i = 0; i < queries_length; ++i) {
+
+        char* subst_file_name = createFileName(chainGetName(queries[i]), subst_path, subst_extension);
+
+        if (isExtantPath(subst_file_name)) {
+            std::vector<std::string> substitutions;
+            read_subst_file(substitutions, subst_file_name);
+            if (check_substitutions(substitutions, queries[i]) == false) {
+                chainDelete(queries[i]);
+                queries[i] = nullptr;
+                is_valid_chain[i] = false;
+                shrink =  true;
+            }
+        }
+
+        delete[] subst_file_name;
+    }
+
+    if (shrink == true) {
+        int32_t i = 0, j = 0;
+        for (; i < queries_length; ++i) {
+            if (is_valid_chain[i] == true) {
+                continue;
+            }
+            j = std::max(j, i);
+            while (j < queries_length && !is_valid_chain[j]) {
+                ++j;
+            }
+
+            if (j >= queries_length) {
+                break;
+            } else if (i != j) {
+                queries[i] = queries[j];
+                is_valid_chain[i] = true;
+                is_valid_chain[j] = false;
+            }
+        }
+        if (i < queries_length) {
+            queries_length = i;
+        }
+    }
+}
 
 void siftPredictions(std::vector<std::vector<Chain*>>& alignment_strings,
     Chain** queries, int32_t queries_length, const std::string& subst_path,
@@ -113,14 +213,12 @@ void* threadSiftPredictions(void* params) {
         std::unordered_map<std::string, double> medianSeqInfoForPos;
 
         readSubstFile(subst_file_name, subst_list);
-        if (checkSubsts(subst_list, thread_data->query) == true) {
-            hashPredictedPos(subst_list, medianSeqInfoForPos);
-            addPosWithDelRef(thread_data->query, SIFTscores, medianSeqInfoForPos);
-            addMedianSeqInfo(thread_data->alignment_strings, thread_data->query,
-                matrix, medianSeqInfoForPos);
-            printSubstFile(subst_list, medianSeqInfoForPos, SIFTscores, aas_stored,
-                total_seq, thread_data->query, out_file_name);
-        }
+        hashPredictedPos(subst_list, medianSeqInfoForPos);
+        addPosWithDelRef(thread_data->query, SIFTscores, medianSeqInfoForPos);
+        addMedianSeqInfo(thread_data->alignment_strings, thread_data->query,
+            matrix, medianSeqInfoForPos);
+        printSubstFile(subst_list, medianSeqInfoForPos, SIFTscores, aas_stored,
+            total_seq, thread_data->query, out_file_name);
     } else {
         // printMatrix(SIFTscores, out_file_name);
         printMatrixOriginalFormat(SIFTscores, out_file_name);

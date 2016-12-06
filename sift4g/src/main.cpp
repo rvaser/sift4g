@@ -188,6 +188,15 @@ int main(int argc, char* argv[]) {
     Chain** queries = nullptr;
     int32_t queries_length = 0;
     readFastaChains(&queries, &queries_length, query_path.c_str());
+    checkData(queries, queries_length, subst_path);
+
+    if (queries_length == 0) {
+        fprintf(stderr, "* EXITING! No valid queries to process. *\n");
+        threadPoolTerminate();
+        free(queries);
+        free(cards);
+        return -1;
+    }
 
     std::vector<std::vector<uint32_t>> indices;
     uint64_t cells = searchDatabase(indices, database_path, queries, queries_length,
