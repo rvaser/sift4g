@@ -30,8 +30,8 @@ If you left out '--recursive' from git clone, run the following commands before 
 
 To run the default version of SIFT4G run the following command:
 
-    ./sift4g -q <query file> -d <database file>
+    ./bin/sift4g -q <query file> -d <database file>
 
 To see all available parameters run the command bellow:
 
-    ./sift4g -h
+    ./bin/sift4g -h
