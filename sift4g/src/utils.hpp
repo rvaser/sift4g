@@ -10,7 +10,7 @@
 
 #include <string>
 
-bool isExtantPath(const char* path);
+int isExtantPath(const char* path);
 
 /* call delete[] after usage */
 char* createFileName(const char* name, const std::string& path, const std::string& extension);

@@ -15,9 +15,21 @@
 
 constexpr uint32_t kBufferSize = 4096;
 
-bool isExtantPath(const char* path) {
+int isExtantPath(const char* path) {
     struct stat buffer;
-    return (stat(path, &buffer) == 0);
+    if (stat(path, &buffer) == 0) {
+        if (buffer.st_mode & S_IFDIR) {
+            // directory
+            return 0;
+        } else if (buffer.st_mode & S_IFREG) {
+            // file
+            return 1;
+        } else {
+            // something
+            return 2;
+        }
+    }
+    return -1;
 }
 
 char* createFileName(const char* name, const std::string& path, const std::string& extension) {

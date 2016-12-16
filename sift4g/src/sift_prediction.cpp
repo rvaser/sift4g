@@ -99,7 +99,7 @@ void checkData(Chain** queries, int32_t& queries_length, const std::string& subs
 
         char* subst_file_name = createFileName(chainGetName(queries[i]), subst_path, subst_extension);
 
-        if (isExtantPath(subst_file_name)) {
+        if (isExtantPath(subst_file_name) == 1) {
             std::vector<std::string> substitutions;
             read_subst_file(substitutions, subst_file_name);
             if (check_substitutions(substitutions, queries[i]) == false) {
@@ -214,7 +214,7 @@ void* threadSiftPredictions(void* params) {
     char* out_file_name = createFileName(chainGetName(thread_data->query),
         thread_data->out_path, out_extension);
 
-    if (isExtantPath(subst_file_name)) {
+    if (isExtantPath(subst_file_name) == 1) {
         std::list<std::string> subst_list;
         std::unordered_map<std::string, double> medianSeqInfoForPos;
 

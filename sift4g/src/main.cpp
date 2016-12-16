@@ -162,7 +162,10 @@ int main(int argc, char* argv[]) {
     }
 
     assert(!query_path.empty() && "missing option -q (query file)");
+    assert(isExtantPath(query_path.c_str()) == 1 && "invalid query file path");
+
     assert(!database_path.empty() && "missing option -d (database file)");
+    assert(isExtantPath(database_path.c_str()) == 1 && "invalid database file path");
 
     assert(kmer_length > 2 && kmer_length < 6 && "kmer_length possible values = 3,4,5");
     assert(max_candidates > 0 && "invalid max candidates number");
@@ -171,11 +174,11 @@ int main(int argc, char* argv[]) {
     assert(num_threads > 0 && "invalid thread number");
 
     if (!out_path.empty()) {
-        assert(isExtantPath(out_path.c_str()) && "invalid out directory");
+        assert(isExtantPath(out_path.c_str()) == 0 && "invalid out directory path");
     }
 
     if (!subst_path.empty()) {
-        assert(isExtantPath(subst_path.c_str()) && "invalid substitutions directory");
+        assert(isExtantPath(subst_path.c_str()) == 0 && "invalid substitutions directory path");
     }
 
     if (cards_length == -1) {
