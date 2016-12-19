@@ -1,12 +1,12 @@
 CORE = sift4g
 DEPS = vendor/swsharp
 
-all: TARGETS=all
-cpu: TARGETS=cpu
+all: TARGETS=cpu
+gpu: TARGETS=all
 clean: TARGETS=clean
 
 all: $(CORE) $(DEPS)
-cpu: $(CORE) $(DEPS)
+gpu: $(CORE) $(DEPS)
 
 clean: $(CORE) $(DEPS)
 	@echo [RM] cleaning
