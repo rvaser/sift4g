@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #include "utils.hpp"
 #include "database_search.hpp"
@@ -161,30 +160,30 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    assert(!query_path.empty() && "missing option -q (query file)");
-    assert(isExtantPath(query_path.c_str()) == 1 && "invalid query file path");
+    ASSERT(!query_path.empty(), "missing option -q (query file)");
+    ASSERT(isExtantPath(query_path.c_str()) == 1, "invalid query file path '%s'", query_path.c_str());
 
-    assert(!database_path.empty() && "missing option -d (database file)");
-    assert(isExtantPath(database_path.c_str()) == 1 && "invalid database file path");
+    ASSERT(!database_path.empty(), "missing option -d (database file)");
+    ASSERT(isExtantPath(database_path.c_str()) == 1, "invalid database file path '%s'", database_path.c_str());
 
-    assert(kmer_length > 2 && kmer_length < 6 && "kmer_length possible values = 3,4,5");
-    assert(max_candidates > 0 && "invalid max candidates number");
+    ASSERT(kmer_length > 2 && kmer_length < 6, "kmer_length possible values = 3,4,5");
+    ASSERT(max_candidates > 0, "invalid max candidates number");
 
-    assert(max_evalue > 0 && "invalid evalue");
-    assert(num_threads > 0 && "invalid thread number");
+    ASSERT(max_evalue > 0, "invalid evalue");
+    ASSERT(num_threads > 0, "invalid thread number");
 
     if (!out_path.empty()) {
-        assert(isExtantPath(out_path.c_str()) == 0 && "invalid out directory path");
+        ASSERT(isExtantPath(out_path.c_str()) == 0, "invalid out directory path '%s'", out_path.c_str());
     }
 
     if (!subst_path.empty()) {
-        assert(isExtantPath(subst_path.c_str()) == 0 && "invalid substitutions directory path");
+        ASSERT(isExtantPath(subst_path.c_str()) == 0, "invalid substitutions directory path '%s'", subst_path.c_str());
     }
 
     if (cards_length == -1) {
         cudaGetCards(&cards, &cards_length);
     }
-    assert(cudaCheckCards(cards, cards_length) && "invalid cuda cards");
+    ASSERT(cudaCheckCards(cards, cards_length), "invalid cuda cards");
 
     threadPoolInitialize(num_threads);
 
@@ -270,7 +269,7 @@ static int getOutFormat(char* optarg) {
         }
     }
 
-    assert(0 && "unknown out format");
+    ASSERT(false, "unknown out format '%s'", optarg);
 }
 
 static int getAlgorithm(char* optarg) {
@@ -281,7 +280,7 @@ static int getAlgorithm(char* optarg) {
         }
     }
 
-    assert(0 && "unknown algorithm");
+    ASSERT(false, "unknown algorithm '%s'", optarg);
 }
 
 static void help() {

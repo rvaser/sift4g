@@ -6,7 +6,6 @@
  * @author: rvaser
  */
 
-#include <assert.h>
 #include <algorithm>
 #include <limits>
 

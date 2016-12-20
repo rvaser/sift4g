@@ -7,7 +7,6 @@
  */
 
 #include <math.h>
-#include <assert.h>
 #include <cstring>
 #include <fstream>
 #include <algorithm>

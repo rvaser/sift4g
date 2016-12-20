@@ -6,8 +6,6 @@
  * @author: rvaser
  */
 
-#include <assert.h>
-
 #include "utils.hpp"
 #include "database_alignment.hpp"
 

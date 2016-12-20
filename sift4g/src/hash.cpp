@@ -6,10 +6,10 @@
  * @author: rvaser
  */
 
-#include <assert.h>
 #include <queue>
 
 #include "hash.hpp"
+#include "utils.hpp"
 
 #include "swsharp/swsharp.h"
 
@@ -46,9 +46,9 @@ void createKmerVector(std::vector<uint32_t>& dst, Chain* chain, uint32_t kmer_le
 std::unique_ptr<Hash> createHash(Chain** chains, uint32_t chains_length,
     uint32_t start, uint32_t length, uint32_t kmer_length) {
 
-    assert(chains_length);
-    assert(start < chains_length && start + length <= chains_length);
-    assert(kmer_length && kmer_length < 6);
+    ASSERT(chains_length, "zero chains passed to hash");
+    ASSERT(start < chains_length && start + length <= chains_length, "invalid chain interval");
+    ASSERT(kmer_length && kmer_length < 6, "invalid kmer_length");
 
     return std::unique_ptr<Hash>(new Hash(chains, chains_length, start, length, kmer_length));
 }
