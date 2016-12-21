@@ -34,7 +34,9 @@ If you have a CUDA enabled graphics card (and the nvcc compiler) run 'make gpu' 
 
 To run the default version of SIFT4G run the following command:
 
-    ./bin/sift4g -q <query file> -d <database file>
+    ./bin/sift4g -q <query .fa file> -d <database .fa file>
+
+where both the query and database files are protein sequences in fasta format.
 
 To see all available parameters run the command bellow:
 
