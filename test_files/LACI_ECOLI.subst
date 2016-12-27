@@ -1,0 +1,9 @@
+# this is a sample file of substitutions.  This file has 2 substitutions for 
+# the lacI protein.  
+# K2S => substitution of amino acid K to S at position 2.  SIFT will predict
+# whether the S is tolerated or not.
+# format should be one substitution / line, any line that starts with # will
+# be discarded
+K2S  
+P3M 
+V15K # comments can be made  
