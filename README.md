@@ -41,3 +41,7 @@ where both the query and database files are protein sequences in fasta format.
 To see all available parameters run the command bellow:
 
     ./bin/sift4g -h
+    
+## Check installation
+
+To test sift4g, go to the [test_files directory](test_files/) and follow directions in [README](test_files/README.md)
