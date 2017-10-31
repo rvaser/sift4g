@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <cmath>
 
 #include "hash.hpp"
 #include "utils.hpp"
@@ -261,7 +262,7 @@ int32_t longestIncreasingSubsequence(const std::vector<int32_t>& src) {
         u = src.size();
 
         while (u > l) {
-            temp = floor((l + u) / 2.0f);
+            temp = std::floor((l + u) / 2.0f);
             if (help[temp] < src[i]) {
                 l = temp + 1;
             } else {

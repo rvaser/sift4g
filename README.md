@@ -3,7 +3,7 @@
 SIFT (Sorting Intolerant From Tolerant) For Genomes (http://www.nature.com/nprot/journal/v11/n1/full/nprot.2015.123.html)
 
 ## Requirements
-- g++ (4.8+)
+- g++ (4.9+)
 - GNU Make
 - nvcc (2.\*+) (optional)
 
@@ -41,7 +41,7 @@ where both the query and database files are protein sequences in fasta format.
 To see all available parameters run the command bellow:
 
     ./bin/sift4g -h
-    
+
 ## Check installation
 
 To test sift4g, go to the [test_files directory](test_files/) and follow directions in [README](test_files/README.md)
