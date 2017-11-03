@@ -151,6 +151,10 @@ void siftPredictions(std::vector<std::vector<Chain*>>& alignment_strings,
 
     for (int32_t i = 0; i < queries_length; ++i) {
 
+        if (alignment_strings[i].empty()) {
+            continue;
+        }
+
         auto thread_data = new ThreadPredictionData(alignment_strings[i], queries[i],
             subst_path, sequence_identity, out_path);
 

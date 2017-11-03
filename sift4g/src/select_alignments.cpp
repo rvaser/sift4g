@@ -54,6 +54,10 @@ void selectAlignments(std::vector<std::vector<Chain*>>& dst, DbAlignment*** alig
 
     for (int32_t i = 0; i < queries_length; ++i) {
 
+        if (alignments_lengths[i] == 0) {
+            continue;
+        }
+
         auto thread_data = new ThreadSelectionData(dst[i], alignments[i],
             alignments_lengths[i], queries[i], threshold);
 

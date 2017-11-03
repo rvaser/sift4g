@@ -148,7 +148,9 @@ uint64_t searchDatabase(std::vector<std::vector<uint32_t>>& dst,
                 }
             }
 
-            min_scores[i] = candidates[0][i].back().score;
+            if (!candidates[0][i].empty()) {
+                min_scores[i] = candidates[0][i].back().score;
+            }
         }
 
         databaseLog(part, part_size, 100);
